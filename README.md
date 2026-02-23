@@ -1,8 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js + React + Three.js Portfolio
+
+A production-ready 3D web portfolio built with:
+
+- **Next.js 16+** - React framework with App Router
+- **React 19+** - Latest React with new features
+- **Three.js** - 3D rendering engine
+- **@react-three/fiber** - React renderer for Three.js
+- **@react-three/drei** - Useful helpers for R3F
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Utility-first CSS
+- **ESLint** - Code linting
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+### Production Build
+
+```bash
+npm run build
+npm start
+```
+
+## Project Structure
+
+```
+├── app/                    # Next.js App Router
+│   ├── layout.tsx         # Root layout
+│   ├── page.tsx           # Home page
+│   └── globals.css        # Global styles
+├── components/
+│   └── Scene.tsx          # Three.js scene component
+├── public/                # Static assets
+├── package.json           # Dependencies
+├── tsconfig.json          # TypeScript config
+├── next.config.ts         # Next.js configuration
+└── eslint.config.mjs      # ESLint configuration
+```
+
+## Features
+
+✅ Full TypeScript support  
+✅ 3D rendering with Three.js  
+✅ Tailwind CSS styling  
+✅ Production optimizations  
+✅ ESLint configuration  
+✅ GitHub Actions CI/CD  
+✅ Dark mode ready  
+
+## Environment Variables
+
+Create `.env.local` for development:
+```
+NEXT_PUBLIC_APP_ENV=development
+```
+
+## Deployment
+
+The project is optimized for deployment on Vercel. Push to your repository and connect it to Vercel for automatic deployments.
+
+## License
+
+MIT
 
 ```bash
 npm run dev
