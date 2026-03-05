@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   productionBrowserSourceMaps: false,
-  swcMinify: true,
   poweredByHeader: false,
 };
 

@@ -48,8 +48,8 @@ export function toggleWireframe(scene: THREE.Scene, enabled: boolean) {
     if (object instanceof THREE.Mesh && object.material) {
       const materials = Array.isArray(object.material) ? object.material : [object.material];
       materials.forEach((mat) => {
-        if (mat instanceof THREE.Material) {
-          mat.wireframe = enabled;
+        if (mat instanceof THREE.Material && 'wireframe' in mat) {
+          (mat as THREE.MeshStandardMaterial).wireframe = enabled;
         }
       });
     }
