@@ -7,5 +7,4 @@
  */
 
 export { Scene, Experience, Box } from '@/components/three';
-export { default as Container } from '@/components/ui/Container';
 

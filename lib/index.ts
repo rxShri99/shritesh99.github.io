@@ -2,7 +2,7 @@
  * Library utilities and helpers
  */
 
-export * from '@/utils/helpers';
-export * from '@/utils/three';
-export * from '@/utils/debug';
+export * from '@/lib/utils/helpers';
+export * from '@/lib/utils/three';
+export * from '@/lib/utils/debug';
 

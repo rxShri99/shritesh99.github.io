@@ -1,20 +1,15 @@
 'use client';
 
 import { PerspectiveCamera, OrbitControls } from '@react-three/drei';
-import { useControls, Leva } from 'leva';
+import { useControls } from 'leva';
 import { sceneConfig } from '@/config';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { Perf } from 'r3f-perf';
 
 interface ExperienceProps {
   children?: ReactNode;
 }
 
-/**
- * Experience component - Master scene setup
- * Handles camera, lights, controls, and debug tools
- * All scene content should be nested inside this component
- */
 export default function Experience({ children }: ExperienceProps) {
   // Leva debug controls
   const controls = useControls({
@@ -30,9 +25,6 @@ export default function Experience({ children }: ExperienceProps) {
     lightY: { value: 10, min: -20, max: 20, step: 1 },
     lightZ: { value: 5, min: -20, max: 20, step: 1 },
   });
-  useEffect(() => {
-    console.log(children);
-  }, []);
 
   return (
     <>
@@ -58,9 +50,8 @@ export default function Experience({ children }: ExperienceProps) {
       {/* Controls */}
       {sceneConfig.enableControls && <OrbitControls />}
 
-      {/* Scene Content */}
       {sceneConfig.enableStats && <Perf position="top-left" />}
-      
+      {/* Scene Content */}
       {children}
     </>
   );

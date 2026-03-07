@@ -1,9 +1,9 @@
-import SceneWrapper from '@/components/three/SceneWrapper';
+import Scene from '@/components/three/Scene';
 
 export default function Home() {
   return (
-    <div className="relative w-screen h-screen">
-      <SceneWrapper />
+    <div className="w-screen h-screen">
+      <Scene />
     </div>
   );
 }

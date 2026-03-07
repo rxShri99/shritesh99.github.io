@@ -1,5 +1,7 @@
 # Next.js + React + Three.js Portfolio
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/27794f55-e474-4ca2-9b97-6940af12aab2/deploy-status)](https://app.netlify.com/projects/shri99-dev/deploys)
+
 A production-ready 3D web portfolio built with:
 
 - **Next.js 16+** - React framework with App Router
