@@ -8,9 +8,10 @@ import { Perf } from 'r3f-perf';
 
 interface ExperienceProps {
   children?: ReactNode;
+  isDevMode?: boolean;
 }
 
-export default function Experience({ children }: ExperienceProps) {
+export default function Experience({ children, isDevMode }: ExperienceProps) {
   // Leva debug controls
   const controls = useControls({
     // Camera controls
@@ -50,7 +51,7 @@ export default function Experience({ children }: ExperienceProps) {
       {/* Controls */}
       {sceneConfig.enableControls && <OrbitControls />}
 
-      {sceneConfig.enableStats && <Perf position="top-left" />}
+      {(isDevMode || sceneConfig.enableControls) && <Perf position="top-left" />}
       {/* Scene Content */}
       {children}
     </>
