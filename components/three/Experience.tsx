@@ -15,10 +15,30 @@ export default function Experience({ children, isDevMode }: ExperienceProps) {
   // Leva debug controls
   const controls = useControls({
     // Camera controls
-    cameraFov: { value: 75, min: 20, max: 120, step: 1 },
-    cameraX: { value: sceneConfig.CAMERA_POSITION[0], min: -10, max: 10, step: 0.1 },
-    cameraY: { value: sceneConfig.CAMERA_POSITION[1], min: -10, max: 10, step: 0.1 },
-    cameraZ: { value: sceneConfig.CAMERA_POSITION[2], min: -20, max: 20, step: 0.1 },
+    cameraFov: {
+      value: sceneConfig.CAMERA_FOV,
+      min: 20,
+      max: 120,
+      step: 1,
+    },
+    cameraX: {
+      value: sceneConfig.CAMERA_POSITION[0],
+      min: -30,
+      max: 30,
+      step: 0.1,
+    },
+    cameraY: {
+      value: sceneConfig.CAMERA_POSITION[1],
+      min: -30,
+      max: 30,
+      step: 0.1,
+    },
+    cameraZ: {
+      value: sceneConfig.CAMERA_POSITION[2],
+      min: -30,
+      max: 30,
+      step: 0.1,
+    },
     // Lighting controls
     ambientIntensity: { value: 0.5, min: 0, max: 2, step: 0.1 },
     directionalIntensity: { value: 1, min: 0, max: 2, step: 0.1 },
@@ -29,7 +49,6 @@ export default function Experience({ children, isDevMode }: ExperienceProps) {
 
   return (
     <>
-
       {/* Camera */}
       <PerspectiveCamera
         makeDefault
@@ -51,7 +70,9 @@ export default function Experience({ children, isDevMode }: ExperienceProps) {
       {/* Controls */}
       {sceneConfig.enableControls && <OrbitControls />}
 
-      {(isDevMode || sceneConfig.enableControls) && <Perf position="top-left" />}
+      {(isDevMode || sceneConfig.enableControls) && (
+        <Perf position="top-left" />
+      )}
       {/* Scene Content */}
       {children}
     </>

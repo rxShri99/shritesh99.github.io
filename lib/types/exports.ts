@@ -3,4 +3,4 @@
  * Centralized location for all TypeScript interfaces and types
  */
 
-export type * from '@/types/index';
+export type * from './index';
