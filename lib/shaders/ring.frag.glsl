@@ -1,26 +1,38 @@
+#define PI 3.14159265359
+
+uniform float uTime;
+
+uniform vec3  uBaseColor1;
+uniform vec3  uBaseColor2;
+uniform float uBaseOpacity;
+uniform vec3  uFresnelColor;
+uniform float uFresnelPower;
+uniform float uFresnelStrength;
+uniform float uFresnelBias;
+uniform vec3  uLightDir;
+
+varying vec3 vViewDir;
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
-uniform float uTime;
-
 
 void main(){  
     
-    float strength = sin((vUv.x - uTime *0.02) * 3.14159265359 *  16.0);
 
-    vec3 viewDirection = normalize(vPosition - cameraPosition);
-    
-    float fresnel = dot(viewDirection, vNormal);
-    fresnel = pow(fresnel, 4.0);
-    float falloff = smoothstep(1.0, 0.0, fresnel);
+    // Base layer
+        
+    float strength = sin((vUv.x - uTime * 0.03) * PI *  16.0);
+    vec3 baseColour =  mix(uBaseColor1, uBaseColor2, strength);
 
-    
-    vec3 color =  mix(vec3(0.263, 0.38, 0.933), vec3(1.0), strength * falloff);
-    // float intensity = 1.05 - dot(vNormal, vec3(0.0, 0.0, 0.0));
-    vec4 glow = vec4(color, falloff);
-    // * pow(intensity, 9.0);  
-    
-    // Output to screen
-    // gl_FragColor = glow;
-    gl_FragColor = glow;
+    float diff = max(dot(vNormal, uLightDir), 0.5);
+    float ambient = 0.5;
+    vec3 baseShaded = baseColour * (ambient + diff * 0.75);
+
+    // Fresnel layer
+    float NdotV = dot(vNormal, vViewDir);
+    float fresnel = uFresnelBias + uFresnelStrength * pow(clamp(1.0 - NdotV, 0.0, 1.0), uFresnelPower);
+ 
+    vec3 finalColor = baseShaded + fresnel * uFresnelColor;
+ 
+    gl_FragColor = vec4(finalColor, uBaseOpacity);
 }
