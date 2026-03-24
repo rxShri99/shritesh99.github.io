@@ -52,7 +52,7 @@ export default function Experience({ children, isDevMode }: ExperienceProps) {
       step: 0.1,
     },
     // Lighting controls
-    ambientIntensity: { value: 0.5, min: 0, max: 2, step: 0.1 },
+    // ambientIntensity: { value: 0.5, min: 0, max: 2, step: 0.1 },
   });
   return (
     <>
@@ -66,10 +66,10 @@ export default function Experience({ children, isDevMode }: ExperienceProps) {
       />
 
       {/* Lighting */}
-      <ambientLight intensity={controls.ambientIntensity} />
+      {/* <ambientLight intensity={controls.ambientIntensity} /> */}
 
       {/* Controls */}
-      {sceneConfig.enableControls && <OrbitControls />}
+      {/* {sceneConfig.enableControls && <OrbitControls />} */}
 
       {(isDevMode || sceneConfig.enableControls) && (
         <Perf position="top-left" />

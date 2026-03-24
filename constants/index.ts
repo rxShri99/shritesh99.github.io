@@ -43,7 +43,7 @@ export const SCENE_CONFIG = {
   CAMERA_FOV: 75,
   CAMERA_NEAR: 0.1,
   CAMERA_FAR: 100,
-  CAMERA_POSITION: [0, -2, 20] as [number, number, number],
+  CAMERA_POSITION: [0, -5, 20] as [number, number, number],
 } as const;
 
 /**

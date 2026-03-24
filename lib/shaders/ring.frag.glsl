@@ -21,7 +21,7 @@ void main(){
 
     // Base layer
         
-    float strength = sin((vUv.x - uTime * 0.03) * PI *  16.0);
+    float strength = sin((vUv.x) * PI *  16.0);
     vec3 baseColour =  mix(uBaseColor1, uBaseColor2, strength);
 
     float diff = max(dot(vNormal, uLightDir), 0.5);
