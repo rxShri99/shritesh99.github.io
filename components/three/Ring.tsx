@@ -4,7 +4,6 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useEffect, useMemo, useRef } from 'react';
 import { animated, useSpring } from '@react-spring/three';
-// import { ringVertexShader, ringFragmentShader } from '@/lib/shaders';
 import ringVertexShader from '@/lib/shaders/ring.vert.glsl';
 import ringFragmentShader from '@/lib/shaders/ring.frag.glsl';
 import { useControls } from 'leva';

@@ -1,14 +1,10 @@
 'use client';
 
-import { PerspectiveCamera, OrbitControls } from '@react-three/drei';
+import { PerspectiveCamera, OrbitControls, Html } from '@react-three/drei';
 import { useControls } from 'leva';
 import { sceneConfig } from '@/config';
 import {
   ReactNode,
-  Children,
-  cloneElement,
-  isValidElement,
-  ReactElement,
 } from 'react';
 import { Perf } from 'r3f-perf';
 
@@ -52,7 +48,7 @@ export default function Experience({ children, isDevMode }: ExperienceProps) {
       step: 0.1,
     },
     // Lighting controls
-    // ambientIntensity: { value: 0.5, min: 0, max: 2, step: 0.1 },
+    ambientIntensity: { value: 0.5, min: 0, max: 2, step: 0.1 },
   });
   return (
     <>
@@ -66,7 +62,8 @@ export default function Experience({ children, isDevMode }: ExperienceProps) {
       />
 
       {/* Lighting */}
-      {/* <ambientLight intensity={controls.ambientIntensity} /> */}
+      <ambientLight intensity={controls.ambientIntensity} />
+      <directionalLight position={[5, 5, 5]} intensity={1} />
 
       {/* Controls */}
       {/* {sceneConfig.enableControls && <OrbitControls />} */}

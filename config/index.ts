@@ -13,5 +13,5 @@ export const appConfig = {
 
 export const sceneConfig = {
   ...SCENE_CONFIG,
-  enableControls: appConfig.environment === 'development',
+  enableControls: true, // Always enable controls
 };

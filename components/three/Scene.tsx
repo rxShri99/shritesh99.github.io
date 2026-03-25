@@ -1,19 +1,34 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { StrictMode } from 'react';
-import { Canvas, useLoader } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import Experience from './Experience';
 import { Leva } from 'leva';
 import { sceneConfig } from '@/config';
 import Ring from './Ring';
 import { useDevMode } from '@/hooks/useDevMode';
-import { Text3D, Center } from '@react-three/drei';
-import { FontLoader } from 'three/addons/loaders/FontLoader';
+import { Text, Center, Preload } from '@react-three/drei';
+import Loader from './Loader';
+import { animated, useSpring } from '@react-spring/three';
+
+const AnimatedText = animated(Text);
+
 export default function Scene() {
   const isDevMode = useDevMode();
-  const font = useLoader(FontLoader, '/fonts/Splash-Regular.json');
-
+  const fontSizeSpring = useSpring({
+    from: {
+      fontSize: 2
+    },
+    to: {
+      fontSize: 3,
+    },
+    config: {
+      mass: 5,
+      tension: 10,
+      friction: 5,
+    },
+  });
   return (
     <StrictMode>
       {(isDevMode || sceneConfig.enableControls) && <Leva collapsed />}
@@ -24,17 +39,19 @@ export default function Scene() {
           display: 'block',
         }}
       >
-        <Experience isDevMode={isDevMode}>
-          <Ring />
-          {/* <Suspense fallback={null}> */}
-          <Center>
-            <Text3D font={font} size={0.8} height={0.2}>
-              hello
-              <meshStandardMaterial color="hotpink" />
-            </Text3D>
-          </Center>
-          {/* </Suspense> */}
-        </Experience>
+        <Suspense fallback={<Loader />}>
+          <Experience isDevMode={isDevMode}>
+            <Ring />
+              <AnimatedText position={[0, 2, 0]}
+                font="/fonts/Splash-Regular.ttf"
+                color="white"
+                fontSize={fontSizeSpring.fontSize}
+              >
+                I am a Passionate Developer!
+              </AnimatedText>
+          </Experience>
+          <Preload all />
+        </Suspense>
       </Canvas>
     </StrictMode>
   );
