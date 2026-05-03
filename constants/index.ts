@@ -40,10 +40,9 @@ export const COLOR_THEME_RGB = {
  */
 export const SCENE_CONFIG = {
   BACKGROUND_COLOR: 0x000000,
-  CAMERA_FOV: 75,
+  CAMERA_FOV: 50,
   CAMERA_NEAR: 0.1,
-  CAMERA_FAR: 100,
-  CAMERA_POSITION: [0, -5, 20] as [number, number, number],
+  CAMERA_FAR: 1000,
 } as const;
 
 /**
