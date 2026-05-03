@@ -8,10 +8,9 @@ import { useScroll } from '@/context/ScrollContext';
 import { Preload, Text } from '@react-three/drei';
 import Loader from './Loader';
 import { animated, useSpring } from '@react-spring/three';
-import type { TextProps } from '@react-three/drei';
 import { useControls } from 'leva';
 
-const AnimatedText = animated(Text) as React.FC<TextProps>;
+const AnimatedText = animated(Text);
 
 function AnimatedTextComponent() {
   const fontSizeSpring = useSpring({
@@ -43,7 +42,7 @@ function AnimatedTextComponent() {
     },
   });
 
-  const position = useMemo(() => {
+  const position = useMemo<[number, number, number]>(() => {
     return [0, controls.y, controls.z];
   }, [controls.y, controls.z]);
 

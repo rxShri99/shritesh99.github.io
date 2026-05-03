@@ -8,4 +8,3 @@
 
 export { default as Scene } from './Scene';
 export { default as Experience } from './Experience';
-export { default as Box } from './Box';
