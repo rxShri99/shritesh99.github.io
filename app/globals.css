@@ -38,8 +38,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Smooth scrolling and performance optimizations */
-* {
+/* Smooth scrolling and performance optimizations - scoped to scrollable content only */
+.scroll-content,
+.scroll-content * {
   perspective: 1000px;
 }
 
@@ -61,7 +62,6 @@ body::-webkit-scrollbar {
   z-index: 999999 !important;
   position: fixed !important;
   pointer-events: auto !important;
-  transform: translateZ(0) !important;
 }
 
 /* Ensure Leva controls are not blocked by any overlay */

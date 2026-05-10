@@ -32,7 +32,7 @@ export default function Home() {
           </div>
 
           {/* Scrollable Content */}
-          <div className="relative z-10">
+          <div className="relative z-10 scroll-content">
             <Page1 />
             <Page2 />
             <Page3 />

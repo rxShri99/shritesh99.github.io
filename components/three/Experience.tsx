@@ -6,7 +6,7 @@ import {
   PerspectiveCamera,
 } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useControls } from 'leva';
+import { useControls, button, folder, buttonGroup } from 'leva';
 import { sceneConfig } from '@/config';
 import { ReactNode, useRef, useEffect } from 'react';
 import { Perf } from 'r3f-perf';
@@ -29,6 +29,11 @@ function SceneSetup() {
   return null;
 }
 
+function scrollToPage(pageIndex: number) {
+  const pageHeight = window.innerHeight;
+  window.scrollTo({ top: pageIndex * pageHeight, behavior: 'smooth' });
+}
+
 export default function Experience({
   children,
   isDevMode,
@@ -37,6 +42,7 @@ export default function Experience({
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
 
   const controls = useControls({
+    'Camera': folder({
     cameraFov: {
       value: sceneConfig.CAMERA_FOV,
       min: 20,
@@ -44,6 +50,18 @@ export default function Experience({
       step: 1,
     },
     ambientIntensity: { value: 0.5, min: 0, max: 2, step: 0.1 },
+    cameraRotX: { value: 0.25, min: 0, max: Math.PI / 2, step: 0.01 },
+  }, {collapsed: false})
+});
+
+  useControls('Navigate', {
+    'Page': buttonGroup({
+      'Page 1': () => scrollToPage(0),
+      'Page 2': () => scrollToPage(1),
+      'Page 3': () => scrollToPage(2),
+      'Page 4': () => scrollToPage(3),
+      'Page 5': () => scrollToPage(4),
+    }),
   });
 
   useFrame((state) => {
@@ -53,7 +71,8 @@ export default function Experience({
     const newY = THREE.MathUtils.lerp(currentY, targetY, lerpFactor);
 
     state.camera.position.set(0, newY, 107.23);
-    state.camera.lookAt(0, newY, 0);
+    // state.camera.lookAt(0, newY, 0);
+    state.camera.rotation.x = controls.cameraRotX;
   });
   return (
     <>
@@ -77,7 +96,7 @@ export default function Experience({
       {(isDevMode || sceneConfig.enableControls) && (
         <>
           <Perf position="top-left" />
-          <GizmoHelper alignment="top-left" margin={[80, 80]}>
+          <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
             <GizmoViewport
               axisColors={['red', 'green', 'blue']}
               labelColor="white"

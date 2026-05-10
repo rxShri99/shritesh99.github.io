@@ -4,10 +4,9 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useEffect, useMemo, useRef } from 'react';
 import { animated, useSpring } from '@react-spring/three';
-import { gsap } from 'gsap';
 import ringVertexShader from '@/lib/shaders/ring.vert.glsl';
 import ringFragmentShader from '@/lib/shaders/ring.frag.glsl';
-import { useControls } from 'leva';
+import { useControls, folder } from 'leva';
 
 const RADIUSES = {
   ringS: 3,
@@ -23,36 +22,81 @@ const RING_SCALES = {
 
 interface RingProps {
   currentPage: number;
+  scrollProgress: number;
 }
 
-const Ring = ({ currentPage }: RingProps) => {
+// Z keyframes for pages 0-4
+const PAGE_Z_POSITIONS = [207, 107, 7, -96, -195];
+
+// Per-page Z offsets from mid ring for S and L rings (0 = all rings at same Z)
+const PAGE_OFFSETS_S = [-2.5, 0, -2.5, -2.5, -2.5];
+const PAGE_OFFSETS_L = [2.5, 0, 2.5, 2.5, 2.5];
+
+// Per-page rotation angles [x, y] in radians for each ring
+const PAGE_ROTATIONS_S: [number, number][] = [
+  [0, 0],
+  [Math.PI / 6, 0],
+  [Math.PI / 4, Math.PI / 6],
+  [Math.PI / 3, Math.PI / 4],
+  [0, Math.PI / 2],
+];
+const PAGE_ROTATIONS_M: [number, number][] = [
+  [0, 0],
+  [0, Math.PI / 4],
+  [Math.PI / 6, Math.PI / 3],
+  [Math.PI / 4, 0],
+  [Math.PI / 6, Math.PI / 6],
+];
+const PAGE_ROTATIONS_L: [number, number][] = [
+  [0, 0],
+  [-Math.PI / 6, Math.PI / 4],
+  [0, Math.PI / 2],
+  [Math.PI / 6, -Math.PI / 4],
+  [-Math.PI / 4, 0],
+];
+
+function interpolate(keyframes: number[], progress: number): number {
+  const scaled = progress * (keyframes.length - 1);
+  const idx = Math.floor(scaled);
+  const t = scaled - idx;
+  const from = keyframes[Math.min(idx, keyframes.length - 1)];
+  const to = keyframes[Math.min(idx + 1, keyframes.length - 1)];
+  return from + (to - from) * t;
+}
+
+const Ring = ({ currentPage, scrollProgress }: RingProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const ringSRef = useRef<THREE.Mesh>(null);
   const ringMRef = useRef<THREE.Mesh>(null);
   const ringLRef = useRef<THREE.Mesh>(null);
   const ringsGroupRef = useRef<THREE.Group>(null);
-  const previousPageRef = useRef(0);
 
   const controls = useControls({
-    lightX: { value: 0, min: -50, max: 50, step: 1 },
-    lightY: { value: 0, min: -50, max: 50, step: 1 },
-    lightZ: { value: 10, min: -50, max: 50, step: 1 },
-    baseOpacity: { value: 1.0, min: 0, max: 1, step: 0.01 },
-    fresnelColor: '#4361EE',
-    baseColor1: '#4361EE',
-    baseColor2: '#fff',
-    fresnelPower: { value: 3.5, min: 0, max: 10, step: 0.1 },
-    fresnelStrength: { value: 5.0, min: 0, max: 10, step: 0.01 },
-    fresnelBias: { value: 0.0, min: 0, max: 1, step: 0.01 },
-    rotationSpeed: {
-      value: 0.03,
-      min: 0,
-      max: 0.1,
-      step: 0.001,
-    },
-    ringMY: { value: 10, min: -300, max: 300, step: 1 },
-    ringMZ: { value: 245, min: -300, max: 300, step: 1 },
-  });
+    'Ring': folder({
+      'Ring Material': folder({
+        lightX: { value: 0, min: -50, max: 50, step: 1 },
+        lightY: { value: 0, min: -50, max: 50, step: 1 },
+        lightZ: { value: 10, min: -50, max: 50, step: 1 },
+        baseOpacity: { value: 1.0, min: 0, max: 1, step: 0.01 },
+        fresnelColor: '#4361EE',
+        baseColor1: '#4361EE',
+        baseColor2: '#fff',
+        fresnelPower: { value: 3.5, min: 0, max: 10, step: 0.1 },
+        fresnelStrength: { value: 5.0, min: 0, max: 10, step: 0.01 },
+        fresnelBias: { value: 0.0, min: 0, max: 1, step: 0.01 },
+        rotationSpeed: {
+          value: 0.03,
+          min: 0,
+          max: 0.1,
+          step: 0.001,
+        },
+      }, { collapsed: true }),
+      'Ring Position': folder({
+        ringMY: { value: -86, min: -300, max: 300, step: 1 },
+        ringMZ: { value: 206, min: -300, max: 300, step: 1 },
+      }, { collapsed: false }),
+  })
+});
 
   const ringSIntroSpring = useSpring({
     from: {
@@ -63,7 +107,7 @@ const Ring = ({ currentPage }: RingProps) => {
       ],
     },
     to: {
-      position: [0, controls.ringMY, controls.ringMZ - 3] as [
+      position: [0, controls.ringMY, controls.ringMZ - 2.5] as [
         number,
         number,
         number,
@@ -85,7 +129,7 @@ const Ring = ({ currentPage }: RingProps) => {
       ],
     },
     to: {
-      position: [0, controls.ringMY, controls.ringMZ + 3] as [
+      position: [0, controls.ringMY, controls.ringMZ + 2.5] as [
         number,
         number,
         number,
@@ -98,17 +142,6 @@ const Ring = ({ currentPage }: RingProps) => {
     },
   });
 
-  const scrollBasedPositions = useMemo(() => {
-    const yPos = controls.ringMY;
-    const xPos = 0;
-    const zPos = controls.ringMZ;
-
-    return {
-      ringS: [xPos, yPos, zPos - 3] as [number, number, number],
-      ringM: [xPos, yPos, zPos] as [number, number, number],
-      ringL: [xPos, yPos, zPos + 3] as [number, number, number],
-    };
-  }, [controls.ringMY, controls.ringMZ]);
 
   const uniforms = useMemo(
     () => ({
@@ -135,38 +168,55 @@ const Ring = ({ currentPage }: RingProps) => {
     };
   }, [sharedRingGeometry]);
 
-  // Animate middle ring Y position when page changes
-  useEffect(() => {
-    if (ringMRef.current && currentPage !== previousPageRef.current) {
-      // Calculate target Y position based on current page
-      // You can adjust these values to control the Y position for each page
-      const pageYPositions = [10, 30, 50, 70, 90]; // Y positions for pages 0-4
-      const targetY = pageYPositions[currentPage] || controls.ringMY;
-
-      // Animate to the new Y position using GSAP
-      gsap.to(ringMRef.current.position, {
-        y: targetY,
-        duration: 1.5, // Animation duration in seconds
-        ease: 'power2.inOut', // Smooth easing function
-        onUpdate: () => {
-          // Optional: Update controls to reflect the new position
-          controls.ringMY = ringMRef.current!.position.y;
-        },
-      });
-
-      previousPageRef.current = currentPage;
-    }
-  }, [currentPage, controls]);
-
   useFrame(() => {
+    const targetZ = interpolate(PAGE_Z_POSITIONS, scrollProgress);
+    if (ringMRef.current) {
+      ringMRef.current.position.z = THREE.MathUtils.lerp(
+        ringMRef.current.position.z,
+        targetZ,
+        0.1
+      );
+      ringMRef.current.position.y = controls.ringMY;
+    }
+    if (ringSRef.current) {
+      const sOffset = interpolate(PAGE_OFFSETS_S, scrollProgress);
+      ringSRef.current.position.z = THREE.MathUtils.lerp(
+        ringSRef.current.position.z,
+        targetZ + sOffset,
+        0.1
+      );
+      ringSRef.current.position.y = controls.ringMY;
+    }
+    if (ringLRef.current) {
+      const lOffset = interpolate(PAGE_OFFSETS_L, scrollProgress);
+      ringLRef.current.position.z = THREE.MathUtils.lerp(
+        ringLRef.current.position.z,
+        targetZ + lOffset,
+        0.1
+      );
+      ringLRef.current.position.y = controls.ringMY;
+    }
+
     if (ringSRef.current) {
       ringSRef.current.rotation.z += controls.rotationSpeed / RADIUSES.ringS;
+      const sTargetX = interpolate(PAGE_ROTATIONS_S.map(r => r[0]), scrollProgress);
+      const sTargetY = interpolate(PAGE_ROTATIONS_S.map(r => r[1]), scrollProgress);
+      ringSRef.current.rotation.x = THREE.MathUtils.lerp(ringSRef.current.rotation.x, sTargetX, 0.05);
+      ringSRef.current.rotation.y = THREE.MathUtils.lerp(ringSRef.current.rotation.y, sTargetY, 0.05);
     }
     if (ringMRef.current) {
       ringMRef.current.rotation.z += controls.rotationSpeed / RADIUSES.ringM;
+      const mTargetX = interpolate(PAGE_ROTATIONS_M.map(r => r[0]), scrollProgress);
+      const mTargetY = interpolate(PAGE_ROTATIONS_M.map(r => r[1]), scrollProgress);
+      ringMRef.current.rotation.x = THREE.MathUtils.lerp(ringMRef.current.rotation.x, mTargetX, 0.05);
+      ringMRef.current.rotation.y = THREE.MathUtils.lerp(ringMRef.current.rotation.y, mTargetY, 0.05);
     }
     if (ringLRef.current) {
       ringLRef.current.rotation.z += controls.rotationSpeed / RADIUSES.ringL;
+      const lTargetX = interpolate(PAGE_ROTATIONS_L.map(r => r[0]), scrollProgress);
+      const lTargetY = interpolate(PAGE_ROTATIONS_L.map(r => r[1]), scrollProgress);
+      ringLRef.current.rotation.x = THREE.MathUtils.lerp(ringLRef.current.rotation.x, lTargetX, 0.05);
+      ringLRef.current.rotation.y = THREE.MathUtils.lerp(ringLRef.current.rotation.y, lTargetY, 0.05);
     }
 
     if (materialRef.current) {
@@ -205,10 +255,10 @@ const Ring = ({ currentPage }: RingProps) => {
             uniforms={uniforms}
           />
         </animated.mesh>
-        <animated.mesh
+        <mesh
           ref={ringMRef}
           scale={[RING_SCALES.ringM, RING_SCALES.ringM, RING_SCALES.ringM]}
-          position={scrollBasedPositions.ringM}
+          position={[0, controls.ringMY, PAGE_Z_POSITIONS[0]]}
         >
           <primitive object={sharedRingGeometry} attach="geometry" />
           <shaderMaterial
@@ -220,7 +270,7 @@ const Ring = ({ currentPage }: RingProps) => {
             transparent={true}
             uniforms={uniforms}
           />
-        </animated.mesh>
+        </mesh>
         <animated.mesh
           ref={ringLRef}
           scale={[RING_SCALES.ringL, RING_SCALES.ringL, RING_SCALES.ringL]}

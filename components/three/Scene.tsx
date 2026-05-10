@@ -8,7 +8,7 @@ import { useScroll } from '@/context/ScrollContext';
 import { Preload, Text } from '@react-three/drei';
 import Loader from './Loader';
 import { animated, useSpring } from '@react-spring/three';
-import { useControls } from 'leva';
+import { useControls, folder } from 'leva';
 
 const AnimatedText = animated(Text);
 
@@ -28,18 +28,20 @@ function AnimatedTextComponent() {
   });
 
   const controls = useControls({
-    y: {
-      value: 275,
-      min: -300,
-      max: 300,
-      step: 1,
-    },
-    z: {
-      value: -80,
-      min: -300,
-      max: 300,
-      step: 1,
-    },
+    'Text Position': folder({
+      y: {
+        value: 215,
+        min: -300,
+        max: 300,
+        step: 1,
+      },
+      z: {
+        value: 75,
+        min: -300,
+        max: 300,
+        step: 1,
+      },
+    }, { collapsed: false })
   });
 
   const position = useMemo<[number, number, number]>(() => {
@@ -59,7 +61,7 @@ function AnimatedTextComponent() {
 }
 
 export default function Scene() {
-  const { cameraY, currentPage } = useScroll();
+  const { cameraY, currentPage, scrollProgress } = useScroll();
 
   return (
     // <StrictMode>
@@ -72,7 +74,7 @@ export default function Scene() {
     >
       <Suspense fallback={<Loader />}>
         <Experience cameraY={cameraY}>
-          <Ring currentPage={currentPage} />
+          <Ring currentPage={currentPage} scrollProgress={scrollProgress} />
           <AnimatedTextComponent />
         </Experience>
         <Preload all />
