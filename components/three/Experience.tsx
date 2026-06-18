@@ -31,7 +31,7 @@ function SceneSetup() {
 
 function scrollToPage(pageIndex: number) {
   const pageHeight = window.innerHeight;
-  window.scrollTo({ top: pageIndex * pageHeight, behavior: 'smooth' });
+  window.scrollTo({ top: pageIndex * pageHeight });
 }
 
 export default function Experience({
@@ -42,25 +42,29 @@ export default function Experience({
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
 
   const controls = useControls({
-    'Camera': folder({
-    cameraFov: {
-      value: sceneConfig.CAMERA_FOV,
-      min: 20,
-      max: 120,
-      step: 1,
-    },
-    ambientIntensity: { value: 0.5, min: 0, max: 2, step: 0.1 },
-    cameraRotX: { value: 0.25, min: 0, max: Math.PI / 2, step: 0.01 },
-  }, {collapsed: false})
-});
+    Camera: folder(
+      {
+        cameraFov: {
+          value: sceneConfig.CAMERA_FOV,
+          min: 20,
+          max: 120,
+          step: 1,
+        },
+        ambientIntensity: { value: 0.5, min: 0, max: 2, step: 0.1 },
+        cameraRotX: { value: 0.25, min: 0, max: Math.PI / 2, step: 0.01 },
+      },
+      { collapsed: false }
+    ),
+  });
 
   useControls('Navigate', {
-    'Page': buttonGroup({
+    Page: buttonGroup({
       'Page 1': () => scrollToPage(0),
       'Page 2': () => scrollToPage(1),
       'Page 3': () => scrollToPage(2),
       'Page 4': () => scrollToPage(3),
       'Page 5': () => scrollToPage(4),
+      'Page 6': () => scrollToPage(5),
     }),
   });
 

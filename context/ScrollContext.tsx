@@ -37,8 +37,8 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
       setScrollProgress(progress);
       setScrollY(scrollTop);
 
-      // Calculate current page (0-4 for 5 pages)
-      const page = Math.min(Math.floor(progress * 5), 4);
+      // Calculate current page (0-5 for 6 pages)
+      const page = Math.min(Math.floor(progress * 6), 5);
 
       // Calculate smooth camera Z position based on continuous scroll progress
       // Maps scroll progress (0-1) to camera Z position (200 to -200)
