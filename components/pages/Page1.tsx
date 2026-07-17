@@ -1,18 +1,16 @@
+'use client';
+
 import { hero } from '@/data/portfolio';
 
 export default function Page1() {
   return (
     <div className="relative min-h-screen flex items-center justify-center px-6">
-      <div className="text-center space-y-6 pointer-events-none select-none">
-        <p className="text-sm md:text-base uppercase tracking-[0.3em] text-white/50 font-light">
-          {hero.title}
-        </p>
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-none">
+      <div
+        className="text-center space-y-6 pointer-events-none select-none translate-y-[-135px] min-[375px]:translate-y-[calc(-135px+(-175px+135px)*(100vw-375px)/53)] min-[428px]:translate-y-[calc(-175px+(-110px+175px)*(100vw-428px)/153)] min-[581px]:translate-y-[-110px]"
+      >
+        <h1 className="font-bold tracking-tight leading-none text-[40px] min-[375px]:text-[calc(40px+5*(100vw-375px)/53)] min-[428px]:text-[calc(45px+5*(100vw-428px)/153)] min-[581px]:text-[calc(50px+50*(100vw-581px)/1018)] min-[1599px]:text-[100px]">
           {hero.name}
         </h1>
-        <p className="text-lg md:text-xl text-white/60 max-w-md mx-auto">
-          {hero.tagline}
-        </p>
       </div>
 
       {/* Scroll indicator */}

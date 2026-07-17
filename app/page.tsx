@@ -22,7 +22,7 @@ export default function Home() {
         <div className="relative">
           {/* Leva UI - positioned above everything */}
           {(isDevMode || sceneConfig.enableControls) && (
-            <div className="fixed top-0 right-0 z-50">
+            <div className="fixed top-0 right-0 z-[999999] pointer-events-auto">
               <Leva collapsed />
             </div>
           )}
@@ -33,7 +33,7 @@ export default function Home() {
           </div>
 
           {/* Scrollable Content */}
-          <div className="relative z-10 scroll-content">
+          <div className="relative z-10 scroll-content pointer-events-none [&>*]:pointer-events-auto">
             <Page1 />
             <Page2 />
             <Page3 />

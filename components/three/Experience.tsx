@@ -6,7 +6,7 @@ import {
   PerspectiveCamera,
 } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useControls, button, folder, buttonGroup } from 'leva';
+import { useControls, buttonGroup } from 'leva';
 import { sceneConfig } from '@/config';
 import { ReactNode, useRef, useEffect } from 'react';
 import { Perf } from 'r3f-perf';
@@ -31,7 +31,15 @@ function SceneSetup() {
 
 function scrollToPage(pageIndex: number) {
   const pageHeight = window.innerHeight;
-  window.scrollTo({ top: pageIndex * pageHeight });
+  const target = pageIndex * pageHeight;
+  if (Math.abs(window.scrollY - target) < 2) {
+    window.scrollTo({ top: target + 1 });
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: target, behavior: 'smooth' });
+    });
+  } else {
+    window.scrollTo({ top: target, behavior: 'smooth' });
+  }
 }
 
 export default function Experience({
@@ -41,30 +49,20 @@ export default function Experience({
 }: ExperienceProps) {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
 
-  const controls = useControls({
-    Camera: folder(
-      {
-        cameraFov: {
-          value: sceneConfig.CAMERA_FOV,
-          min: 20,
-          max: 120,
-          step: 1,
-        },
-        ambientIntensity: { value: 0.5, min: 0, max: 2, step: 0.1 },
-        cameraRotX: { value: 0.25, min: 0, max: Math.PI / 2, step: 0.01 },
-      },
-      { collapsed: false }
-    ),
-  });
+  const CAMERA = {
+    fov: sceneConfig.CAMERA_FOV,
+    ambientIntensity: 0.5,
+    rotX: 0.35,
+  };
 
   useControls('Navigate', {
-    Page: buttonGroup({
-      'Page 1': () => scrollToPage(0),
-      'Page 2': () => scrollToPage(1),
-      'Page 3': () => scrollToPage(2),
-      'Page 4': () => scrollToPage(3),
-      'Page 5': () => scrollToPage(4),
-      'Page 6': () => scrollToPage(5),
+    ' ': buttonGroup({
+      '1': () => scrollToPage(0),
+      '2': () => scrollToPage(1),
+      '3': () => scrollToPage(2),
+      '4': () => scrollToPage(3),
+      '5': () => scrollToPage(4),
+      '6': () => scrollToPage(5),
     }),
   });
 
@@ -76,7 +74,7 @@ export default function Experience({
 
     state.camera.position.set(0, newY, 107.23);
     // state.camera.lookAt(0, newY, 0);
-    state.camera.rotation.x = controls.cameraRotX;
+    state.camera.rotation.x = CAMERA.rotX;
   });
   return (
     <>
@@ -86,7 +84,7 @@ export default function Experience({
         ref={cameraRef}
         makeDefault
         aspect={window.innerWidth / window.innerHeight}
-        fov={controls.cameraFov}
+        fov={CAMERA.fov}
         near={sceneConfig.CAMERA_NEAR}
         far={sceneConfig.CAMERA_FAR}
         position={[0, cameraY, 107.23]}
@@ -94,7 +92,7 @@ export default function Experience({
       />
 
       {/* Lighting */}
-      <ambientLight intensity={controls.ambientIntensity} />
+      <ambientLight intensity={CAMERA.ambientIntensity} />
       <directionalLight position={[5, 5, 5]} intensity={1} />
 
       {(isDevMode || sceneConfig.enableControls) && (

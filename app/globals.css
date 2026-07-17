@@ -39,8 +39,7 @@ body {
 }
 
 /* Smooth scrolling and performance optimizations - scoped to scrollable content only */
-.scroll-content,
-.scroll-content * {
+.scroll-content {
   perspective: 1000px;
 }
 

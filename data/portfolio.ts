@@ -4,18 +4,13 @@
  */
 
 export const hero = {
-  name: 'Shritesh Jamulkar',
-  title: 'Software Engineer',
-  tagline: 'Building elegant solutions with modern web technologies.',
+  name: 'I am a passionate Developer!',
 };
 
 export const about = {
-  bio: `I'm a passionate software engineer who loves crafting performant, visually stunning web experiences. With a strong foundation in full-stack development, I focus on writing clean, maintainable code and pushing the boundaries of what's possible on the web.`,
+  bio: ``,
   highlights: [
-    'Full-Stack Development',
-    'Interactive 3D Web Experiences',
-    'Performance Optimization',
-    'Open Source Contributor',
+    '',
   ],
 };
 

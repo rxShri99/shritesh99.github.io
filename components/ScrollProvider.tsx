@@ -16,7 +16,7 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     try {
       // Initialize Lenis
       lenis = new Lenis({
-        lerp: 0.1,
+        lerp: 0.15,
         wheelMultiplier: 1,
         touchMultiplier: 2,
         infinite: false,
