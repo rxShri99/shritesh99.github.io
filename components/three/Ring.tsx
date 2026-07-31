@@ -3,6 +3,7 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useEffect, useMemo, useRef } from 'react';
+import { useControls, button, levaStore } from 'leva';
 import ringVertexShader from '@/lib/shaders/ring.vert.glsl';
 import ringFragmentShader from '@/lib/shaders/ring.frag.glsl';
 
@@ -37,6 +38,20 @@ function getRingZ(w: number): number {
   return THREE.MathUtils.clamp(222.5 - 0.011 * w, 206, 220);
 }
 
+// Responsive ring Y for page 2: f(aspect ratio)
+// Fit from: iPhone 13 PM(0.46→-63), iPhone SE(0.56→-70), iPad Pro(0.70→-77), MacBook Air(1.64→-88)
+// p2Y ≈ -60 - 17 * (w/h)
+function getP2Y(w: number, h: number): number {
+  return -60 - 17 * (w / h);
+}
+
+// Responsive ring Z for page 2: f(aspect ratio)
+// Fit from: iPhone 13 PM(0.46→135), iPhone SE(0.56→133), iPad Pro(0.70→131), MacBook Air(1.64→127)
+// p2Z ≈ 138 - 7 * (w/h)
+function getP2Z(w: number, h: number): number {
+  return 138 - 7 * (w / h);
+}
+
 // Responsive ring Y for page 6: f(aspect ratio)
 // Fit from: iPhone 13 PM(0.46→-61), iPhone SE(0.56→-71), iPad Pro(0.70→-76), MacBook Air(1.64→-88)
 // p6Y ≈ -58 - 19 * (w/h)
@@ -52,43 +67,43 @@ function getP6Z(w: number, h: number): number {
 }
 
 // Static Z keyframes for pages 2-5 (constant across all screen sizes)
-const PAGE_Z_REST = [124, 45, -36, -118];
+const PAGE_Z_REST = [127, 49, -36, -118];
 
 // X keyframes for pages 0-5
 const PAGE_X_POSITIONS = [0, 0, 0, 0, 0, 0];
 
 // Per-page X offsets from mid ring for S and L rings
-const PAGE_X_OFFSETS_S = [0, 0, 0, 0, 0, 0];
-const PAGE_X_OFFSETS_L = [0, 1, 0, 0, 0, 0];
+const PAGE_X_OFFSETS_S = [0, 0, 0.5, 0, 0, 0];
+const PAGE_X_OFFSETS_L = [0, 0, 1.5, 0, 0, 0];
 
 // Per-page Z offsets from mid ring for S and L rings (0 = all rings at same Z)
-const PAGE_OFFSETS_S = [-2.5, 0.5, 0, -2.5, -2.5, 2];
-const PAGE_OFFSETS_L = [2.5, 1.5, 0, 2.5, 2.5, 4.0];
+const PAGE_OFFSETS_S = [-2.5, 0.5, -1, -2.5, -2.5, 2];
+const PAGE_OFFSETS_L = [2.5, 1.0, -1, 2.5, 2.5, 4.0];
 
-// Per-page rotation angles [x, y] in radians for each ring
-const PAGE_ROTATIONS_S: [number, number][] = [
-  [0, 0],
-  [0, -Math.PI * 0.15],
-  [0, 0],
-  [Math.PI / 3, Math.PI / 4],
-  [0, Math.PI / 2],
-  [0, 0],
+// Per-page rotation angles [x, y, z] in radians for each ring
+const PAGE_ROTATIONS_S: [number, number, number][] = [
+  [0, 0, 0],
+  [0.5, 0.4, 0],
+  [0, -0.4, 0],
+  [Math.PI / 3, Math.PI / 4, 0],
+  [0, Math.PI / 2, 0],
+  [0, 0, 0],
 ];
-const PAGE_ROTATIONS_M: [number, number][] = [
-  [0, 0],
-  [0, Math.PI * 0.15],
-  [Math.PI / 6, Math.PI / 3],
-  [Math.PI / 4, 0],
-  [Math.PI / 6, Math.PI / 6],
-  [0, 0],
+const PAGE_ROTATIONS_M: [number, number, number][] = [
+  [0, 0, 0],
+  [0.4, -0.4, 0],
+  [1.1, 0, 0],
+  [Math.PI / 4, 0, 0],
+  [Math.PI / 6, Math.PI / 6, 0],
+  [0, 0, 0],
 ];
-const PAGE_ROTATIONS_L: [number, number][] = [
-  [0, 0],
-  [Math.PI * 1.3, Math.PI * 0.8],
-  [0, -Math.PI / 4],
-  [Math.PI / 6, -Math.PI / 4],
-  [-Math.PI / 4, 0],
-  [0, 0],
+const PAGE_ROTATIONS_L: [number, number, number][] = [
+  [0, 0, 0],
+  [0.5, 0, 0],
+  [-0.6, -1, 0],
+  [Math.PI / 6, -Math.PI / 4, 0],
+  [-Math.PI / 4, 0, 0],
+  [0, 0, 0],
 ];
 
 function interpolate(keyframes: number[], progress: number): number {
@@ -106,7 +121,26 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
   const ringMRef = useRef<THREE.Mesh>(null);
   const ringLRef = useRef<THREE.Mesh>(null);
   const ringsGroupRef = useRef<THREE.Group>(null);
+  const hasInitialized = useRef(false);
+  const spinPhaseS = useRef(0);
+  const spinPhaseM = useRef(0);
+  const spinPhaseL = useRef(0);
   const { size } = useThree();
+
+  const t3 = useControls('t3', {
+    x: { value: PAGE_X_POSITIONS[2], step: 0.1 },
+    y: { value: -85, step: 0.1 },
+    z: { value: PAGE_Z_REST[1], step: 0.1 },
+    'Copy All': button(() => {
+      const data = levaStore.getData() as Record<string, { value?: unknown }>;
+      const values: Record<string, unknown> = {};
+      for (const [path, entry] of Object.entries(data)) {
+        if (entry && 'value' in entry) values[path] = entry.value;
+      }
+      const json = JSON.stringify(values, null, 2);
+      navigator.clipboard?.writeText(json).catch(() => console.log(json));
+    }),
+  });
 
   const RING_MATERIAL = {
     lightX: 0,
@@ -154,62 +188,86 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
     const p6Z = getP6Z(size.width, size.height);
     const pageZ = [ringZ, ...PAGE_Z_REST, p6Z];
 
-    const targetX = interpolate(PAGE_X_POSITIONS, scrollProgress);
-    const targetZ = interpolate(pageZ, scrollProgress);
-    // Blend Y from page 1 value toward page 6 value across scroll
-    const targetY = ringY + (p6Y - ringY) * scrollProgress;
+    const p2Y = getP2Y(size.width, size.height);
+    const p2Z = getP2Z(size.width, size.height);
+
+    const midPageX = [...PAGE_X_POSITIONS];
+    midPageX[2] = t3.x;
+    const midPageY = [0, 1, 2, 3, 4, 5].map(
+      (i) => ringY + (p6Y - ringY) * (i / 5)
+    );
+    midPageY[1] = p2Y;
+    midPageY[2] = t3.y;
+    const midPageZ = [...pageZ];
+    midPageZ[1] = p2Z;
+    midPageZ[2] = t3.z;
+    const midTargetX = interpolate(midPageX, scrollProgress);
+    const midTargetY = interpolate(midPageY, scrollProgress);
+    const midTargetZ = interpolate(midPageZ, scrollProgress);
+
+    const sXOffset = interpolate(PAGE_X_OFFSETS_S, scrollProgress);
+    const sYOffset = 0;
+    const sOffset = interpolate(PAGE_OFFSETS_S, scrollProgress);
+    const lXOffset = interpolate(PAGE_X_OFFSETS_L, scrollProgress);
+    const lYOffset = 0;
+    const lOffset = interpolate(PAGE_OFFSETS_L, scrollProgress);
+
+    // Snap to targets on first frame so rings don't lerp in from the origin
+    const t = hasInitialized.current ? 0.1 : 1;
+    hasInitialized.current = true;
+
     if (ringMRef.current) {
       ringMRef.current.position.x = THREE.MathUtils.lerp(
         ringMRef.current.position.x,
-        targetX,
-        0.1
+        midTargetX,
+        t
       );
       ringMRef.current.position.z = THREE.MathUtils.lerp(
         ringMRef.current.position.z,
-        targetZ,
-        0.1
+        midTargetZ,
+        t
       );
-      ringMRef.current.position.y = targetY;
+      ringMRef.current.position.y = midTargetY;
     }
     if (ringSRef.current) {
-      const sXOffset = interpolate(PAGE_X_OFFSETS_S, scrollProgress);
-      const sOffset = interpolate(PAGE_OFFSETS_S, scrollProgress);
       ringSRef.current.position.x = THREE.MathUtils.lerp(
         ringSRef.current.position.x,
-        targetX + sXOffset,
-        0.1
+        midTargetX + sXOffset,
+        t
       );
       ringSRef.current.position.z = THREE.MathUtils.lerp(
         ringSRef.current.position.z,
-        targetZ + sOffset,
-        0.1
+        midTargetZ + sOffset,
+        t
       );
-      ringSRef.current.position.y = targetY;
+      ringSRef.current.position.y = midTargetY + sYOffset;
     }
     if (ringLRef.current) {
-      const lXOffset = interpolate(PAGE_X_OFFSETS_L, scrollProgress);
-      const lOffset = interpolate(PAGE_OFFSETS_L, scrollProgress);
       ringLRef.current.position.x = THREE.MathUtils.lerp(
         ringLRef.current.position.x,
-        targetX + lXOffset,
-        0.1
+        midTargetX + lXOffset,
+        t
       );
       ringLRef.current.position.z = THREE.MathUtils.lerp(
         ringLRef.current.position.z,
-        targetZ + lOffset,
-        0.1
+        midTargetZ + lOffset,
+        t
       );
-      ringLRef.current.position.y = targetY;
+      ringLRef.current.position.y = midTargetY + lYOffset;
     }
 
     if (ringSRef.current) {
-      ringSRef.current.rotation.z += RING_MATERIAL.rotationSpeed / RADIUSES.ringS;
+      spinPhaseS.current += RING_MATERIAL.rotationSpeed / RADIUSES.ringS;
       const sTargetX = interpolate(
         PAGE_ROTATIONS_S.map((r) => r[0]),
         scrollProgress
       );
       const sTargetY = interpolate(
         PAGE_ROTATIONS_S.map((r) => r[1]),
+        scrollProgress
+      );
+      const sTargetRotZ = interpolate(
+        PAGE_ROTATIONS_S.map((r) => r[2]),
         scrollProgress
       );
       ringSRef.current.rotation.x = THREE.MathUtils.lerp(
@@ -222,15 +280,20 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
         sTargetY,
         0.05
       );
+      ringSRef.current.rotation.z = sTargetRotZ + spinPhaseS.current;
     }
     if (ringMRef.current) {
-      ringMRef.current.rotation.z += RING_MATERIAL.rotationSpeed / RADIUSES.ringM;
+      spinPhaseM.current += RING_MATERIAL.rotationSpeed / RADIUSES.ringM;
       const mTargetX = interpolate(
         PAGE_ROTATIONS_M.map((r) => r[0]),
         scrollProgress
       );
       const mTargetY = interpolate(
         PAGE_ROTATIONS_M.map((r) => r[1]),
+        scrollProgress
+      );
+      const mTargetRotZ = interpolate(
+        PAGE_ROTATIONS_M.map((r) => r[2]),
         scrollProgress
       );
       ringMRef.current.rotation.x = THREE.MathUtils.lerp(
@@ -243,15 +306,20 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
         mTargetY,
         0.05
       );
+      ringMRef.current.rotation.z = mTargetRotZ + spinPhaseM.current;
     }
     if (ringLRef.current) {
-      ringLRef.current.rotation.z += RING_MATERIAL.rotationSpeed / RADIUSES.ringL;
+      spinPhaseL.current += RING_MATERIAL.rotationSpeed / RADIUSES.ringL;
       const lTargetX = interpolate(
         PAGE_ROTATIONS_L.map((r) => r[0]),
         scrollProgress
       );
       const lTargetY = interpolate(
         PAGE_ROTATIONS_L.map((r) => r[1]),
+        scrollProgress
+      );
+      const lTargetRotZ = interpolate(
+        PAGE_ROTATIONS_L.map((r) => r[2]),
         scrollProgress
       );
       ringLRef.current.rotation.x = THREE.MathUtils.lerp(
@@ -264,6 +332,7 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
         lTargetY,
         0.05
       );
+      ringLRef.current.rotation.z = lTargetRotZ + spinPhaseL.current;
     }
 
     if (materialRef.current) {

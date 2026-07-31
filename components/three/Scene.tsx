@@ -8,7 +8,11 @@ import { useScroll } from '@/context/ScrollContext';
 import { Preload } from '@react-three/drei';
 import Loader from './Loader';
 
-export default function Scene() {
+interface SceneProps {
+  isDevMode?: boolean;
+}
+
+export default function Scene({ isDevMode }: SceneProps) {
   const { cameraY, currentPage, scrollProgress } = useScroll();
 
   return (
@@ -20,7 +24,7 @@ export default function Scene() {
       }}
     >
       <Suspense fallback={<Loader />}>
-        <Experience cameraY={cameraY}>
+        <Experience cameraY={cameraY} isDevMode={isDevMode}>
           <Ring currentPage={currentPage} scrollProgress={scrollProgress} />
         </Experience>
         <Preload all />

@@ -20,16 +20,15 @@ export default function Home() {
     <ScrollProvider>
       <ScrollContextProvider>
         <div className="relative">
-          {/* Leva UI - positioned above everything */}
-          {(isDevMode || sceneConfig.enableControls) && (
-            <div className="fixed top-0 right-0 z-[999999] pointer-events-auto">
-              <Leva collapsed />
-            </div>
-          )}
+          {/* Leva UI - positioned above everything.
+              Must render unconditionally with `hidden` — omitting <Leva> causes it to auto-inject a default panel. */}
+          <div className="fixed top-0 right-0 z-[999999] pointer-events-auto">
+            <Leva collapsed hidden={!(isDevMode || sceneConfig.enableControls)} />
+          </div>
 
           {/* Fixed Three.js Scene Background */}
           <div className="fixed inset-0 z-0">
-            <Scene />
+            <Scene isDevMode={isDevMode} />
           </div>
 
           {/* Scrollable Content */}
