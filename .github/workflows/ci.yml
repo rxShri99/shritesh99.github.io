@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -13,6 +13,8 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_APP_ENV: ${{ github.ref == 'refs/heads/master' && 'production' || 'development' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -31,6 +33,26 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Build
-        env:
-          NEXT_PUBLIC_APP_ENV: ${{ github.ref == 'refs/heads/master' && 'production' || 'development' }}
         run: npm run build
+
+  deploy:
+    needs: check
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ github.ref == 'refs/heads/master' && secrets.NETLIFY_SITE_ID_PROD || secrets.NETLIFY_SITE_ID_DEV }}
+      NEXT_PUBLIC_APP_ENV: ${{ github.ref == 'refs/heads/master' && 'production' || 'development' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy to Netlify (production)
+        run: npx netlify-cli@latest deploy --build --prod

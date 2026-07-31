@@ -3,7 +3,7 @@
  */
 
 import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
+import { useRef, type RefObject } from 'react';
 import * as THREE from 'three';
 
 interface DebugMetrics {
@@ -15,9 +15,13 @@ interface DebugMetrics {
 }
 
 /**
- * Hook to capture and track scene metrics
+ * Hook to capture and track scene metrics.
+ *
+ * Returns a ref rather than the value: metrics update every frame, so binding
+ * them to state would trigger a re-render at 60fps. Read via `.current` in
+ * event handlers or effects, not during render.
  */
-export function useSceneMetrics(): DebugMetrics {
+export function useSceneMetrics(): RefObject<DebugMetrics> {
   const metricsRef = useRef<DebugMetrics>({
     fps: 0,
     renderTime: 0,
@@ -37,7 +41,7 @@ export function useSceneMetrics(): DebugMetrics {
     };
   });
 
-  return metricsRef.current;
+  return metricsRef;
 }
 
 /**
