@@ -119,6 +119,15 @@ const PAGE_ROTATIONS_L: [number, number, number][] = [
   [0, 0, 0],
 ];
 
+// Cursor parallax (page 1 only): rings drift away from the cursor, each by a
+// different amount so the drift reads as depth. Units are world-space; the
+// rings group is rotated -π/2 about X, so local x = screen x, local z = screen y.
+const PARALLAX_STRENGTH = {
+  ringS: 1,
+  ringM: 0.75,
+  ringL: 0.375,
+};
+
 function interpolate(keyframes: number[], progress: number): number {
   const scaled = progress * (keyframes.length - 1);
   const idx = Math.floor(scaled);
@@ -138,7 +147,19 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
   const spinPhaseS = useRef(0);
   const spinPhaseM = useRef(0);
   const spinPhaseL = useRef(0);
+  const pointer = useRef({ x: 0, y: 0 });
   const { size } = useThree();
+
+  // Listen on window: the page sections sit above the canvas with
+  // pointer-events-auto, so the canvas itself rarely receives pointer events.
+  useEffect(() => {
+    const onPointerMove = (e: PointerEvent) => {
+      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointer.current.y = (e.clientY / window.innerHeight) * 2 - 1;
+    };
+    window.addEventListener('pointermove', onPointerMove);
+    return () => window.removeEventListener('pointermove', onPointerMove);
+  }, []);
 
   const RING_MATERIAL = {
     lightX: 0,
@@ -211,6 +232,13 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
     const lYOffset = 0;
     const lOffset = interpolate(PAGE_OFFSETS_L, scrollProgress);
 
+    // Cursor parallax, page 1 only: fades out as page 1 scrolls away
+    // (scrollProgress 0 → 0.2). Rings drift opposite the cursor; the position
+    // lerp below gives the drift its easing.
+    const parallaxFade = Math.max(0, 1 - scrollProgress * 5);
+    const parallaxX = -pointer.current.x * parallaxFade;
+    const parallaxY = pointer.current.y * parallaxFade;
+
     // Snap to targets on first frame so rings don't lerp in from the origin
     const t = hasInitialized.current ? 0.1 : 1;
     hasInitialized.current = true;
@@ -218,12 +246,12 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
     if (ringMRef.current) {
       ringMRef.current.position.x = THREE.MathUtils.lerp(
         ringMRef.current.position.x,
-        midTargetX,
+        midTargetX + parallaxX * PARALLAX_STRENGTH.ringM,
         t
       );
       ringMRef.current.position.z = THREE.MathUtils.lerp(
         ringMRef.current.position.z,
-        midTargetZ,
+        midTargetZ + parallaxY * PARALLAX_STRENGTH.ringM,
         t
       );
       ringMRef.current.position.y = midTargetY;
@@ -231,12 +259,12 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
     if (ringSRef.current) {
       ringSRef.current.position.x = THREE.MathUtils.lerp(
         ringSRef.current.position.x,
-        midTargetX + sXOffset,
+        midTargetX + sXOffset + parallaxX * PARALLAX_STRENGTH.ringS,
         t
       );
       ringSRef.current.position.z = THREE.MathUtils.lerp(
         ringSRef.current.position.z,
-        midTargetZ + sOffset,
+        midTargetZ + sOffset + parallaxY * PARALLAX_STRENGTH.ringS,
         t
       );
       ringSRef.current.position.y = midTargetY + sYOffset;
@@ -244,12 +272,12 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
     if (ringLRef.current) {
       ringLRef.current.position.x = THREE.MathUtils.lerp(
         ringLRef.current.position.x,
-        midTargetX + lXOffset,
+        midTargetX + lXOffset + parallaxX * PARALLAX_STRENGTH.ringL,
         t
       );
       ringLRef.current.position.z = THREE.MathUtils.lerp(
         ringLRef.current.position.z,
-        midTargetZ + lOffset,
+        midTargetZ + lOffset + parallaxY * PARALLAX_STRENGTH.ringL,
         t
       );
       ringLRef.current.position.y = midTargetY + lYOffset;
@@ -338,16 +366,23 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
       materialRef.current.uniforms.uLightDir.value
         .set(RING_MATERIAL.lightX, RING_MATERIAL.lightY, RING_MATERIAL.lightZ)
         .normalize();
-      materialRef.current.uniforms.uBaseOpacity.value = RING_MATERIAL.baseOpacity;
-      materialRef.current.uniforms.uFresnelPower.value = RING_MATERIAL.fresnelPower;
+      materialRef.current.uniforms.uBaseOpacity.value =
+        RING_MATERIAL.baseOpacity;
+      materialRef.current.uniforms.uFresnelPower.value =
+        RING_MATERIAL.fresnelPower;
       materialRef.current.uniforms.uFresnelStrength.value =
         RING_MATERIAL.fresnelStrength;
-      materialRef.current.uniforms.uFresnelBias.value = RING_MATERIAL.fresnelBias;
+      materialRef.current.uniforms.uFresnelBias.value =
+        RING_MATERIAL.fresnelBias;
       materialRef.current.uniforms.uFresnelColor.value.set(
         RING_MATERIAL.fresnelColor
       );
-      materialRef.current.uniforms.uBaseColor1.value.set(RING_MATERIAL.baseColor1);
-      materialRef.current.uniforms.uBaseColor2.value.set(RING_MATERIAL.baseColor2);
+      materialRef.current.uniforms.uBaseColor1.value.set(
+        RING_MATERIAL.baseColor1
+      );
+      materialRef.current.uniforms.uBaseColor2.value.set(
+        RING_MATERIAL.baseColor2
+      );
     }
   });
   return (
@@ -356,11 +391,7 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
         <mesh
           ref={ringSRef}
           scale={[RING_SCALES.ringS, RING_SCALES.ringS, RING_SCALES.ringS]}
-          position={[
-            PAGE_X_POSITIONS[0],
-            0,
-            PAGE_OFFSETS_S[0],
-          ]}
+          position={[PAGE_X_POSITIONS[0], 0, PAGE_OFFSETS_S[0]]}
         >
           <primitive object={sharedRingGeometry} attach="geometry" />
           <shaderMaterial
@@ -393,11 +424,7 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
         <mesh
           ref={ringLRef}
           scale={[RING_SCALES.ringL, RING_SCALES.ringL, RING_SCALES.ringL]}
-          position={[
-            PAGE_X_POSITIONS[0],
-            0,
-            PAGE_OFFSETS_L[0],
-          ]}
+          position={[PAGE_X_POSITIONS[0], 0, PAGE_OFFSETS_L[0]]}
         >
           <primitive object={sharedRingGeometry} attach="geometry" />
           <shaderMaterial

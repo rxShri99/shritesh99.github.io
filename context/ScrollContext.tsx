@@ -14,16 +14,24 @@ const CUMULATIVE_VH: readonly number[] = PAGE_HEIGHTS_VH.reduce<number[]>(
 );
 
 // Index of the page whose scroll is "consumed" by an internal carousel — the
-// ring/camera should hold their pose across this page's entire scroll range.
+// ring/camera should hold their pose while its sticky viewport stays pinned.
 const PINNED_INDEX = 3;
+
+// The pinned page's sticky viewport (h-screen) only pins for
+// (sectionHeight - 100vh) of its scroll; the remaining tail is the sticky
+// release, where the next page slides up. Same formula as Page4's
+// STICKY_FRACTION so the carousel finishes exactly when the ring starts moving.
+const PINNED_STICKY_FRACTION =
+  (PAGE_HEIGHTS_VH[PINNED_INDEX] - 100) / PAGE_HEIGHTS_VH[PINNED_INDEX];
 
 /**
  * Ring/camera-facing scroll progress:
  * - Pages 1-3 contribute 1/(N-1) each — normal.
- * - Page 4 (pinned) locked at 3/5 = 0.6 → ring holds at keyframe[3] (page-4 pose).
- * - Page 5 starts at 4/5 = 0.8 (keyframe[4], page-5 pose) so it's visibly distinct from page 4
- *   the instant you enter, and ends at 1.0 (keyframe[5], page-6 pose). The keyframe[3]→[4] jump
- *   at the page-4/5 boundary is absorbed by the ring's own lerp smoothing (~500ms).
+ * - Page 4 (pinned) holds 3/5 = 0.6 (keyframe[3] pose) while the carousel
+ *   consumes the pinned scroll, then plays the keyframe[3]→[4] transition
+ *   across the sticky-release tail, reaching 0.8 exactly at the page-5
+ *   boundary — progress stays continuous, no jump for the lerp to absorb.
+ * - Page 5: 0.8 → 1.0 (keyframe[4] → keyframe[5], the page-6 pose).
  * - Page 6 holds at 1.0.
  */
 function computeRingProgress(pageIndex: number, pageProgress: number): number {
@@ -32,10 +40,15 @@ function computeRingProgress(pageIndex: number, pageProgress: number): number {
     return (pageIndex + pageProgress) / denom;
   }
   if (pageIndex === PINNED_INDEX) {
-    return PINNED_INDEX / denom; // 0.6, locked
+    const tail =
+      pageProgress <= PINNED_STICKY_FRACTION
+        ? 0
+        : (pageProgress - PINNED_STICKY_FRACTION) /
+          (1 - PINNED_STICKY_FRACTION);
+    return (PINNED_INDEX + tail) / denom; // 0.6 while pinned, → 0.8 by the boundary
   }
   if (pageIndex === PINNED_INDEX + 1) {
-    // Page 5: 0.8 → 1.0 (single T5 transition, but starts at distinct page-5 pose).
+    // Page 5: 0.8 → 1.0 (single T5 transition, continuous with page 4's tail).
     return (PINNED_INDEX + 1 + pageProgress) / denom;
   }
   // Page 6 and beyond: hold at 1.0.

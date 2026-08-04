@@ -37,11 +37,11 @@ export const COLOR_THEME_RGB = {
 
 /**
  * Height of each page section in vh units.
- * - Page 4 is 3x — horizontal card carousel with sticky pinning needs the extra scroll.
- * - Page 5 is 2x — page 4's lock stole one ring transition, so page 5 has to cover
- *   two keyframe transitions; 200vh keeps the per-transition pace matching pages 1-3.
+ * - Page 4 is 3x — horizontal card carousel with sticky pinning needs the extra
+ *   scroll. The ring's keyframe[3]→[4] transition plays across the final 100vh
+ *   (the sticky release), so every page still covers at most one transition.
  */
-export const PAGE_HEIGHTS_VH = [100, 100, 100, 300, 200, 100] as const;
+export const PAGE_HEIGHTS_VH = [100, 100, 100, 300, 100, 100] as const;
 
 /**
  * Three.js scene constants
