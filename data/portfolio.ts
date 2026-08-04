@@ -9,9 +9,7 @@ export const hero = {
 
 export const about = {
   bio: ``,
-  highlights: [
-    '',
-  ],
+  highlights: [''],
 };
 
 export interface Skill {
@@ -130,6 +128,11 @@ export const experiences: Experience[] = [
     ],
   },
 ];
+
+export const quote = {
+  text: 'Simplicity is the ultimate sophistication.',
+  author: 'Leonardo da Vinci',
+};
 
 export const contact = {
   email: 'hello@shritesh.dev',

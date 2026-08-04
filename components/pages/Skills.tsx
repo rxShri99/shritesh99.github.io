@@ -7,7 +7,7 @@ const categoryOrder: Skill['category'][] = [
   'tools',
 ];
 
-export default function Page3() {
+export default function Skills() {
   return (
     <div className="relative min-h-screen flex items-center justify-center px-6">
       <div className="max-w-3xl w-full space-y-10">

@@ -36,12 +36,14 @@ export const COLOR_THEME_RGB = {
 } as const;
 
 /**
- * Height of each page section in vh units.
- * - Page 4 is 3x — horizontal card carousel with sticky pinning needs the extra
- *   scroll. The ring's keyframe[3]→[4] transition plays across the final 100vh
- *   (the sticky release), so every page still covers at most one transition.
+ * Height of each page section in vh units, in page order:
+ * Hero, Experience, Projects, Skills, About, Quote, Contact.
+ * Pages taller than 100vh pin a sticky viewport and scrub an internal
+ * animation (Experience: timeline, Projects: card carousel); the ring's
+ * keyframe transition to the next page plays across their final 100vh (the
+ * sticky release), so every page still covers at most one transition.
  */
-export const PAGE_HEIGHTS_VH = [100, 100, 100, 300, 100, 100] as const;
+export const PAGE_HEIGHTS_VH = [100, 250, 300, 100, 100, 100, 100] as const;
 
 /**
  * Three.js scene constants

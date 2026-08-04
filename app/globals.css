@@ -1,10 +1,8 @@
 @import 'tailwindcss';
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* No global universal margin/padding reset here: Tailwind v4's preflight
+   already does it inside @layer base. An unlayered reset would win the
+   cascade over every layered padding/margin utility and zero them all out. */
 
 :root {
   --background: #000000;
@@ -73,3 +71,11 @@ canvas {
   display: block;
 }
 
+/* Hide the native cursor while the custom cursor overlay is active
+   (the Cursor component adds this class for fine pointers only) */
+@media (pointer: fine) {
+  body.custom-cursor,
+  body.custom-cursor * {
+    cursor: none !important;
+  }
+}

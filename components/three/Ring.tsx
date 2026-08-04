@@ -3,6 +3,7 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useEffect, useMemo, useRef } from 'react';
+import { PAGE_HEIGHTS_VH } from '@/constants';
 import ringVertexShader from '@/lib/shaders/ring.vert.glsl';
 import ringFragmentShader from '@/lib/shaders/ring.frag.glsl';
 
@@ -23,100 +24,105 @@ interface RingProps {
   scrollProgress: number;
 }
 
-// Responsive ring Y: f(aspect ratio)
-// Fit from: iPhone SE(0.56→-70), iPhone 13 PM(0.46→-67), iPad Pro(0.70→-78), MacBook Air(1.64→-88)
-// p1Y ≈ -62 - 16 * (w/h)
-function getRingY(w: number, h: number): number {
+// ---------------------------------------------------------------------------
+// Pose keyframes, one per page, in page order:
+//   0 Hero, 1 Experience, 2 Projects, 3 Skills, 4 About, 5 Quote, 6 Contact.
+// The camera descends from worldY 200 to -200 in equal steps per page, so each
+// pose's vertical position is a LIFT relative to its page's camera stop (the
+// hand-tuned absolute fits from BREAKPOINTS.md minus the old camera stops).
+// Depth / rotation / ring-offset poses are camera-independent and travel with
+// their content.
+// ---------------------------------------------------------------------------
+
+const NUM_PAGES = PAGE_HEIGHTS_VH.length;
+// Camera worldY at each page's keyframe.
+const CAMERA_STOPS = Array.from(
+  { length: NUM_PAGES },
+  (_, i) => 200 - (400 * i) / (NUM_PAGES - 1)
+);
+
+// Depth (local y → world -z): how far the rings sit from the camera plane.
+// Responsive fits (ar = w/h) from BREAKPOINTS.md tuning.
+
+// Hero: iPhone SE(0.56→-70), 13 PM(0.46→-67), iPad Pro(0.70→-78), MacBook(1.64→-88)
+function getHeroDepth(w: number, h: number): number {
   return -62 - 16 * (w / h);
 }
-
-// Responsive ring Z for page 1: f(width)
-// Fit from: 375→220, 428→220, 581→212, 1599→206
-// p1Z ≈ 222.5 - 0.011 * w, clamped to [206, 220]
-function getRingZ(w: number): number {
-  return THREE.MathUtils.clamp(222.5 - 0.011 * w, 206, 220);
-}
-
-// Responsive ring Y for page 2: f(aspect ratio)
-// Fit from: iPhone 13 PM(0.46→-63), iPhone SE(0.56→-70), iPad Pro(0.70→-77), MacBook Air(1.64→-88)
-// p2Y ≈ -60 - 17 * (w/h)
-function getP2Y(w: number, h: number): number {
+// About: 13 PM(0.46→-63), SE(0.56→-70), iPad Pro(0.70→-77), MacBook(1.64→-88)
+function getAboutDepth(w: number, h: number): number {
   return -60 - 17 * (w / h);
 }
-
-// Responsive ring Z for page 2: f(aspect ratio)
-// Fit from: iPhone 13 PM(0.46→135), iPhone SE(0.56→133), iPad Pro(0.70→131), MacBook Air(1.64→127)
-// p2Z ≈ 138 - 7 * (w/h)
-function getP2Z(w: number, h: number): number {
-  return 138 - 7 * (w / h);
-}
-
-// Responsive ring Y for page 3: f(aspect ratio), floored at -85
-// Fit from: iPhone 13 PM(0.46→-77), iPhone SE(0.56→-81), iPad Pro(0.70→-85), MacBook Air(1.64→-85)
-// p3Y ≈ max(-85, -62 - 33 * (w/h))
-function getP3Y(w: number, h: number): number {
+// Skills: 13 PM(0.46→-77), SE(0.56→-81), iPad Pro(0.70→-85), MacBook(1.64→-85)
+function getSkillsDepth(w: number, h: number): number {
   return Math.max(-85, -62 - 33 * (w / h));
 }
-
-// Responsive ring Z for page 3: f(aspect ratio), floored at 49
-// Fit from: iPhone 13 PM(0.46→52), iPhone SE(0.56→50), iPad Pro(0.70→49), MacBook Air(1.64→49)
-// p3Z ≈ max(49, 58 - 13 * (w/h))
-function getP3Z(w: number, h: number): number {
-  return Math.max(49, 58 - 13 * (w / h));
-}
-
-// Responsive ring Y for page 6: f(aspect ratio)
-// Fit from: iPhone 13 PM(0.46→-61), iPhone SE(0.56→-71), iPad Pro(0.70→-76), MacBook Air(1.64→-88)
-// p6Y ≈ -58 - 19 * (w/h)
-function getP6Y(w: number, h: number): number {
+// Contact: 13 PM(0.46→-61), SE(0.56→-71), iPad Pro(0.70→-76), MacBook(1.64→-88)
+function getContactDepth(w: number, h: number): number {
   return -58 - 19 * (w / h);
 }
 
-// Responsive ring Z for page 6: f(aspect ratio)
-// Fit from: iPhone 13 PM(0.46→-186), iPhone SE(0.56→-189), iPad Pro(0.70→-192), MacBook Air(1.64→-196)
-// p6Z ≈ -185 - 7 * (w/h)
-function getP6Z(w: number, h: number): number {
-  return -185 - 7 * (w / h);
+// Vertical lift (local z → world y) above/below the page's camera stop.
+// Derived from the old absolute fits minus the old camera stops.
+
+// Hero: was clamp(222.5 - 0.011w, 206, 220) with camera at 200.
+function getHeroLift(w: number): number {
+  return THREE.MathUtils.clamp(22.5 - 0.011 * w, 6, 20);
 }
+// About: was 138 - 7ar with camera at 120.
+function getAboutLift(w: number, h: number): number {
+  return 18 - 7 * (w / h);
+}
+// Skills: was max(49, 58 - 13ar) with camera at 40.
+function getSkillsLift(w: number, h: number): number {
+  return Math.max(9, 18 - 13 * (w / h));
+}
+// Contact: was -185 - 7ar with camera at -200.
+function getContactLift(w: number, h: number): number {
+  return 15 - 7 * (w / h);
+}
+// Constant lifts (were -36 / -118 against cameras at -40 / -120).
+const PROJECTS_LIFT = 4;
+const EXPERIENCE_LIFT = 2;
+const QUOTE_LIFT = 2;
 
-// Static Z keyframes for pages 2-5 (constant across all screen sizes)
-const PAGE_Z_REST = [127, 49, -36, -118];
+// X keyframes for the mid ring per page
+const PAGE_X_POSITIONS = [0, 0, 0, 0, 0, 0, 0];
 
-// X keyframes for pages 0-5
-const PAGE_X_POSITIONS = [0, 0, 0, 0, 0, 0];
+// Per-page X offsets from mid ring for S and L rings (Skills fans them out)
+const PAGE_X_OFFSETS_S = [0, 0, 0, 0.5, 0, 0, 0];
+const PAGE_X_OFFSETS_L = [0, 0, 0, 1.5, 0, 0, 0];
 
-// Per-page X offsets from mid ring for S and L rings
-const PAGE_X_OFFSETS_S = [0, 0, 0.5, 0, 0, 0];
-const PAGE_X_OFFSETS_L = [0, 0, 1.5, 0, 0, 0];
-
-// Per-page Z offsets from mid ring for S and L rings (0 = all rings at same Z)
-const PAGE_OFFSETS_S = [-2.5, 0.5, -1, -2.5, -2.5, 2];
-const PAGE_OFFSETS_L = [2.5, 1.0, -1, 2.5, 2.5, 4.0];
+// Per-page vertical offsets from mid ring for S and L rings (0 = same height)
+const PAGE_OFFSETS_S = [-2.5, -2.5, -2.5, -1, 0.5, 1.0, 2];
+const PAGE_OFFSETS_L = [2.5, 2.5, 2.5, -1, 1.0, 2.0, 4.0];
 
 // Per-page rotation angles [x, y, z] in radians for each ring
 const PAGE_ROTATIONS_S: [number, number, number][] = [
-  [0, 0, 0],
-  [0.5, 0.4, 0],
-  [0, -0.4, 0],
-  [Math.PI / 3, Math.PI / 4, 0],
-  [0, Math.PI / 2, 0],
-  [0, 0, 0],
+  [0, 0, 0], // Hero
+  [0, Math.PI / 2, 0], // Experience
+  [Math.PI / 3, Math.PI / 4, 0], // Projects
+  [0, -0.4, 0], // Skills
+  [0.5, 0.4, 0], // About
+  [0.55, -0.35, 0], // Quote
+  [0, 0, 0], // Contact
 ];
 const PAGE_ROTATIONS_M: [number, number, number][] = [
-  [0, 0, 0],
-  [0.4, -0.4, 0],
-  [1.1, 0, 0],
-  [Math.PI / 4, 0, 0],
-  [Math.PI / 6, Math.PI / 6, 0],
-  [0, 0, 0],
+  [0, 0, 0], // Hero
+  [Math.PI / 6, Math.PI / 6, 0], // Experience
+  [Math.PI / 4, 0, 0], // Projects
+  [1.1, 0, 0], // Skills
+  [0.4, -0.4, 0], // About
+  [0.5, 0.25, 0], // Quote
+  [0, 0, 0], // Contact
 ];
 const PAGE_ROTATIONS_L: [number, number, number][] = [
-  [0, 0, 0],
-  [0.5, 0, 0],
-  [-0.6, -1, 0],
-  [Math.PI / 6, -Math.PI / 4, 0],
-  [-Math.PI / 4, 0, 0],
-  [0, 0, 0],
+  [0, 0, 0], // Hero
+  [-Math.PI / 4, 0, 0], // Experience
+  [Math.PI / 6, -Math.PI / 4, 0], // Projects
+  [-0.6, -1, 0], // Skills
+  [0.5, 0, 0], // About
+  [0.55, -0.1, 0], // Quote
+  [0, 0, 0], // Contact
 ];
 
 // Cursor parallax (page 1 only): rings drift away from the cursor, each by a
@@ -201,26 +207,36 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
   }, [sharedRingGeometry]);
 
   useFrame(() => {
-    const ringY = getRingY(size.width, size.height);
-    const ringZ = getRingZ(size.width);
-    const p6Y = getP6Y(size.width, size.height);
-    const p6Z = getP6Z(size.width, size.height);
-    const pageZ = [ringZ, ...PAGE_Z_REST, p6Z];
+    const { width: w, height: h } = size;
 
-    const p2Y = getP2Y(size.width, size.height);
-    const p2Z = getP2Z(size.width, size.height);
-    const p3Y = getP3Y(size.width, size.height);
-    const p3Z = getP3Z(size.width, size.height);
+    // Depth per page (Projects / Experience / Quote sit on fractions of the
+    // hero → contact depth span, from the old evenly-spaced tuning).
+    const heroDepth = getHeroDepth(w, h);
+    const contactDepth = getContactDepth(w, h);
+    const spanDepth = (f: number) => heroDepth + (contactDepth - heroDepth) * f;
+    const midPageY = [
+      heroDepth,
+      spanDepth(0.8), // Experience
+      spanDepth(0.6), // Projects
+      getSkillsDepth(w, h),
+      getAboutDepth(w, h),
+      spanDepth(0.8), // Quote
+      contactDepth,
+    ];
+
+    // Vertical per page: camera stop + content's lift.
+    const lifts = [
+      getHeroLift(w),
+      EXPERIENCE_LIFT,
+      PROJECTS_LIFT,
+      getSkillsLift(w, h),
+      getAboutLift(w, h),
+      QUOTE_LIFT,
+      getContactLift(w, h),
+    ];
+    const midPageZ = CAMERA_STOPS.map((cam, i) => cam + lifts[i]);
 
     const midPageX = [...PAGE_X_POSITIONS];
-    const midPageY = [0, 1, 2, 3, 4, 5].map(
-      (i) => ringY + (p6Y - ringY) * (i / 5)
-    );
-    midPageY[1] = p2Y;
-    midPageY[2] = p3Y;
-    const midPageZ = [...pageZ];
-    midPageZ[1] = p2Z;
-    midPageZ[2] = p3Z;
     const midTargetX = interpolate(midPageX, scrollProgress);
     const midTargetY = interpolate(midPageY, scrollProgress);
     const midTargetZ = interpolate(midPageZ, scrollProgress);
@@ -232,10 +248,10 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
     const lYOffset = 0;
     const lOffset = interpolate(PAGE_OFFSETS_L, scrollProgress);
 
-    // Cursor parallax, page 1 only: fades out as page 1 scrolls away
-    // (scrollProgress 0 → 0.2). Rings drift opposite the cursor; the position
-    // lerp below gives the drift its easing.
-    const parallaxFade = Math.max(0, 1 - scrollProgress * 5);
+    // Cursor parallax, hero page only: fades out as the hero scrolls away
+    // (scrollProgress 0 → 1/(N-1)). Rings drift opposite the cursor; the
+    // position lerp below gives the drift its easing.
+    const parallaxFade = Math.max(0, 1 - scrollProgress * (NUM_PAGES - 1));
     const parallaxX = -pointer.current.x * parallaxFade;
     const parallaxY = pointer.current.y * parallaxFade;
 

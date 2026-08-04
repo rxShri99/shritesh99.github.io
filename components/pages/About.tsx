@@ -1,6 +1,6 @@
 import { about } from '@/data/portfolio';
 
-export default function Page2() {
+export default function About() {
   return (
     <div className="relative min-h-screen flex items-center justify-center px-6">
       <div className="max-w-2xl w-full space-y-8">

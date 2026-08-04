@@ -1,17 +1,17 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { projects } from '@/data/portfolio';
 import { useScroll } from '@/context/ScrollContext';
 import { PAGE_HEIGHTS_VH } from '@/constants';
 
-const PAGE_INDEX = 3;
+const PAGE_INDEX = 2;
 // Sticky element (h-screen = 100vh) only pins for (sectionHeight - 100vh) of scroll.
 // So horizontal translation must complete within pageProgress ∈ [0, STICKY_FRACTION].
 const STICKY_FRACTION =
   (PAGE_HEIGHTS_VH[PAGE_INDEX] - 100) / PAGE_HEIGHTS_VH[PAGE_INDEX];
 
-export default function Page4() {
+export default function Projects() {
   const { currentPage, pageProgress } = useScroll();
   const trackRef = useRef<HTMLDivElement>(null);
   const [sidePad, setSidePad] = useState(0);
@@ -38,6 +38,14 @@ export default function Page4() {
     return () => window.removeEventListener('resize', measure);
   }, []);
 
+  // Feed the cursor position (card-local px) to CSS vars so the glow spot and
+  // lit border ring track it. Written straight to the DOM — no re-renders.
+  const handleGlowMove = (e: MouseEvent<HTMLElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--glow-x', `${e.clientX - r.left}px`);
+    e.currentTarget.style.setProperty('--glow-y', `${e.clientY - r.top}px`);
+  };
+
   // Horizontal reveal must finish before the sticky container releases, otherwise
   // page 5 slides up while cards are only partway through their scroll.
   const local =
@@ -55,10 +63,13 @@ export default function Page4() {
       aria-label="Projects"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center py-20">
-        <div className="w-full pl-6 md:pl-16 lg:pl-24 mb-10 md:mb-16">
-          <h2 className="text-4xl md:text-6xl font-bold tracking-tight">
-            Projects
-          </h2>
+        {/* Same heading position as the other pages: flex-centered max-w-2xl column */}
+        <div className="w-full flex justify-center px-6 mb-10 md:mb-16">
+          <div className="max-w-2xl w-full">
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tight">
+              Projects
+            </h2>
+          </div>
         </div>
 
         <div className="relative w-full">
@@ -77,12 +88,35 @@ export default function Page4() {
               return (
                 <article
                   key={project.title}
-                  className="group relative shrink-0 w-[340px] sm:w-[420px] md:w-[500px] h-[440px] md:h-[520px] rounded-[28px] overflow-hidden transition-transform duration-500 will-change-transform hover:-translate-y-2"
+                  onMouseMove={handleGlowMove}
+                  className="group relative shrink-0 w-[340px] sm:w-[420px] md:w-[500px] h-[440px] md:h-[520px] rounded-[28px] overflow-hidden transition-[transform,box-shadow] duration-500 will-change-transform hover:-translate-y-2 hover:shadow-[0_0_80px_-20px_rgba(67,97,238,0.5)]"
                   aria-label={project.title}
                 >
                   <div className="absolute inset-0 rounded-[28px] bg-white/[0.04] backdrop-blur-2xl border border-white/10" />
                   <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-white/[0.06] via-transparent to-transparent" />
                   <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-blue-500/[0.08] via-transparent to-purple-500/[0.08] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  {/* Glow spot following the cursor inside the card */}
+                  <div
+                    className="absolute inset-0 rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                    style={{
+                      background:
+                        'radial-gradient(280px circle at var(--glow-x, 50%) var(--glow-y, 50%), rgba(67, 97, 238, 0.2), transparent 65%)',
+                    }}
+                  />
+                  {/* Border ring lit around the cursor: gradient masked to the 1px inset */}
+                  <div
+                    className="absolute inset-0 rounded-[28px] p-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                    style={{
+                      background:
+                        'radial-gradient(220px circle at var(--glow-x, 50%) var(--glow-y, 50%), rgba(125, 155, 255, 0.9), transparent 70%)',
+                      WebkitMask:
+                        'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                      WebkitMaskComposite: 'xor',
+                      mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                      maskComposite: 'exclude',
+                    }}
+                  />
 
                   <div className="relative h-full p-7 md:p-8 flex flex-col justify-between">
                     <div>

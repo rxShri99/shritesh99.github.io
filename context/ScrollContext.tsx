@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { PAGE_HEIGHTS_VH } from '@/constants';
 
 const NUM_PAGES = PAGE_HEIGHTS_VH.length;
-// Cumulative vh offsets: [0, 100, 200, 300, 600, 700, 800]
+// Cumulative vh offsets: [0, 100, 350, 650, 750, 850, 950, 1050]
 const CUMULATIVE_VH: readonly number[] = PAGE_HEIGHTS_VH.reduce<number[]>(
   (acc, h) => {
     acc.push((acc[acc.length - 1] ?? 0) + h);
@@ -13,46 +13,26 @@ const CUMULATIVE_VH: readonly number[] = PAGE_HEIGHTS_VH.reduce<number[]>(
   [0]
 );
 
-// Index of the page whose scroll is "consumed" by an internal carousel — the
-// ring/camera should hold their pose while its sticky viewport stays pinned.
-const PINNED_INDEX = 3;
-
-// The pinned page's sticky viewport (h-screen) only pins for
-// (sectionHeight - 100vh) of its scroll; the remaining tail is the sticky
-// release, where the next page slides up. Same formula as Page4's
-// STICKY_FRACTION so the carousel finishes exactly when the ring starts moving.
-const PINNED_STICKY_FRACTION =
-  (PAGE_HEIGHTS_VH[PINNED_INDEX] - 100) / PAGE_HEIGHTS_VH[PINNED_INDEX];
-
 /**
- * Ring/camera-facing scroll progress:
- * - Pages 1-3 contribute 1/(N-1) each — normal.
- * - Page 4 (pinned) holds 3/5 = 0.6 (keyframe[3] pose) while the carousel
- *   consumes the pinned scroll, then plays the keyframe[3]→[4] transition
- *   across the sticky-release tail, reaching 0.8 exactly at the page-5
- *   boundary — progress stays continuous, no jump for the lerp to absorb.
- * - Page 5: 0.8 → 1.0 (keyframe[4] → keyframe[5], the page-6 pose).
- * - Page 6 holds at 1.0.
+ * Ring/camera-facing scroll progress.
+ *
+ * Pages taller than 100vh pin a sticky h-screen viewport for the first
+ * (height - 100vh) of their scroll (an internal scrub — carousel, timeline).
+ * While pinned, the ring holds its pose; the keyframe transition to the next
+ * page then plays across the sticky-release tail, reaching (i+1)/(N-1) exactly
+ * at the page boundary — progress stays continuous, no jump for the lerp to
+ * absorb. For plain 100vh pages the sticky fraction is 0 and the transition
+ * spans the whole page. The last page holds at 1.
  */
 function computeRingProgress(pageIndex: number, pageProgress: number): number {
-  const denom = NUM_PAGES - 1; // 5
-  if (pageIndex < PINNED_INDEX) {
-    return (pageIndex + pageProgress) / denom;
-  }
-  if (pageIndex === PINNED_INDEX) {
-    const tail =
-      pageProgress <= PINNED_STICKY_FRACTION
-        ? 0
-        : (pageProgress - PINNED_STICKY_FRACTION) /
-          (1 - PINNED_STICKY_FRACTION);
-    return (PINNED_INDEX + tail) / denom; // 0.6 while pinned, → 0.8 by the boundary
-  }
-  if (pageIndex === PINNED_INDEX + 1) {
-    // Page 5: 0.8 → 1.0 (single T5 transition, continuous with page 4's tail).
-    return (PINNED_INDEX + 1 + pageProgress) / denom;
-  }
-  // Page 6 and beyond: hold at 1.0.
-  return 1;
+  const denom = NUM_PAGES - 1;
+  const height = PAGE_HEIGHTS_VH[pageIndex];
+  const stickyFraction = (height - 100) / height;
+  const tail =
+    pageProgress <= stickyFraction
+      ? 0
+      : (pageProgress - stickyFraction) / (1 - stickyFraction);
+  return Math.min(1, (pageIndex + tail) / denom);
 }
 
 interface ScrollContextType {
