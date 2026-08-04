@@ -1,59 +1,147 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
 import { projects } from '@/data/portfolio';
+import { useScroll } from '@/context/ScrollContext';
+import { PAGE_HEIGHTS_VH } from '@/constants';
+
+const PAGE_INDEX = 3;
+// Sticky element (h-screen = 100vh) only pins for (sectionHeight - 100vh) of scroll.
+// So horizontal translation must complete within pageProgress ∈ [0, STICKY_FRACTION].
+const STICKY_FRACTION =
+  (PAGE_HEIGHTS_VH[PAGE_INDEX] - 100) / PAGE_HEIGHTS_VH[PAGE_INDEX];
 
 export default function Page4() {
-  return (
-    <div className="relative min-h-screen flex items-center justify-center px-6 py-20">
-      <div className="max-w-4xl w-full space-y-10">
-        <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-          Projects
-        </h2>
+  const { currentPage, pageProgress } = useScroll();
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [sidePad, setSidePad] = useState(0);
+  const [maxTranslate, setMaxTranslate] = useState(0);
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {projects.map((project) => (
-            <div
-              key={project.title}
-              className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-6 space-y-4 hover:border-blue-400/30 transition-colors"
-            >
-              <h3 className="text-xl font-semibold">{project.title}</h3>
-              <p className="text-sm text-white/50 leading-relaxed">
-                {project.description}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {project.tech.map((t) => (
-                  <span
-                    key={t}
-                    className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-300/80"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-4 pt-1">
-                {project.github && (
-                  <a
-                    href={project.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-white/40 hover:text-white transition-colors"
-                  >
-                    GitHub &rarr;
-                  </a>
-                )}
-                {project.live && (
-                  <a
-                    href={project.live}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-white/40 hover:text-white transition-colors"
-                  >
-                    Live Demo &rarr;
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
+  useEffect(() => {
+    const measure = () => {
+      const track = trackRef.current;
+      const firstCard = track?.children[0] as HTMLElement | undefined;
+      if (!track || !firstCard) return;
+      const vw = window.innerWidth;
+      // Left pad = vw - cardWidth so card 1 starts on the right of the viewport.
+      // No right pad — track ends with last card right-aligned to the viewport
+      // (which is when we hand off to page 5).
+      const pad = Math.max(0, vw - firstCard.offsetWidth);
+      setSidePad(pad);
+      requestAnimationFrame(() => {
+        const total = track.getBoundingClientRect().width;
+        setMaxTranslate(Math.max(0, total - vw));
+      });
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
+  // Horizontal reveal must finish before the sticky container releases, otherwise
+  // page 5 slides up while cards are only partway through their scroll.
+  const local =
+    currentPage < PAGE_INDEX
+      ? 0
+      : currentPage > PAGE_INDEX
+        ? 1
+        : Math.min(1, pageProgress / STICKY_FRACTION);
+  const translateX = -local * maxTranslate;
+
+  return (
+    <section
+      className="relative w-full"
+      style={{ height: '300vh' }}
+      aria-label="Projects"
+    >
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center py-20">
+        <div className="w-full pl-6 md:pl-16 lg:pl-24 mb-10 md:mb-16">
+          <h2 className="text-4xl md:text-6xl font-bold tracking-tight">
+            Projects
+          </h2>
+        </div>
+
+        <div className="relative w-full">
+          <div
+            ref={trackRef}
+            className="flex gap-6 md:gap-8 w-max will-change-transform"
+            style={{
+              paddingLeft: sidePad,
+              transform: `translate3d(${translateX}px, 0, 0)`,
+              transition: 'transform 0.15s linear',
+            }}
+          >
+            {projects.map((project) => {
+              const primaryLink = project.live || project.github;
+              const primaryLabel = project.live ? 'Explore' : 'View';
+              return (
+                <article
+                  key={project.title}
+                  className="group relative shrink-0 w-[340px] sm:w-[420px] md:w-[500px] h-[440px] md:h-[520px] rounded-[28px] overflow-hidden transition-transform duration-500 will-change-transform hover:-translate-y-2"
+                  aria-label={project.title}
+                >
+                  <div className="absolute inset-0 rounded-[28px] bg-white/[0.04] backdrop-blur-2xl border border-white/10" />
+                  <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-white/[0.06] via-transparent to-transparent" />
+                  <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-blue-500/[0.08] via-transparent to-purple-500/[0.08] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  <div className="relative h-full p-7 md:p-8 flex flex-col justify-between">
+                    <div>
+                      <span className="inline-block px-3.5 py-1.5 rounded-md bg-white/[0.08] backdrop-blur-md text-xs md:text-sm text-white/85 border border-white/10">
+                        {project.tech[0]}
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 md:space-y-4">
+                      <h3 className="text-2xl md:text-3xl font-semibold tracking-tight leading-tight">
+                        {project.title}
+                      </h3>
+                      <p className="text-sm md:text-base text-white/55 leading-relaxed">
+                        {project.description}
+                      </p>
+                      {project.tech.length > 1 && (
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {project.tech.slice(1).map((t) => (
+                            <span
+                              key={t}
+                              className="text-[11px] md:text-xs px-2.5 py-0.5 rounded-full bg-white/[0.04] text-white/55 border border-white/10"
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-3">
+                      {primaryLink && (
+                        <a
+                          href={primaryLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/60 border border-white/10 text-sm text-white hover:bg-black/80 hover:border-white/20 transition-colors"
+                        >
+                          {primaryLabel}
+                          <span aria-hidden>&rarr;</span>
+                        </a>
+                      )}
+                      {project.github && project.live && (
+                        <a
+                          href={project.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/10 text-sm text-white/70 hover:bg-white/[0.08] hover:text-white transition-colors"
+                        >
+                          GitHub
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

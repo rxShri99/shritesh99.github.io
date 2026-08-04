@@ -8,6 +8,7 @@ import {
 import { useFrame } from '@react-three/fiber';
 import { useControls, buttonGroup } from 'leva';
 import { sceneConfig } from '@/config';
+import { PAGE_HEIGHTS_VH } from '@/constants';
 import { ReactNode, useRef, useEffect } from 'react';
 import { Perf } from 'r3f-perf';
 import * as THREE from 'three';
@@ -30,8 +31,10 @@ function SceneSetup() {
 }
 
 function scrollToPage(pageIndex: number) {
-  const pageHeight = window.innerHeight;
-  const target = pageIndex * pageHeight;
+  const vh = window.innerHeight;
+  let offsetVh = 0;
+  for (let i = 0; i < pageIndex; i++) offsetVh += PAGE_HEIGHTS_VH[i];
+  const target = offsetVh * vh;
   if (Math.abs(window.scrollY - target) < 2) {
     window.scrollTo({ top: target + 1 });
     requestAnimationFrame(() => {

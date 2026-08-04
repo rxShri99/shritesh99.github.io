@@ -77,7 +77,7 @@ iphone SE: 375x667
   "t2.lOffsetZ": 1
 }
 
-# Page 2 
+# Page 3 
 
 MacbookAir: 1599x975
 
@@ -104,13 +104,64 @@ MacbookAir: 1599x975
 
 
 iPad Pro 11: 581x831
+{
+  "t3.x": 0,
+  "t3.y": -85,
+  "t3.z": 49
+}
+
+
+iphone 13 pro max: 428x926
+
+{
+  "t3.x": 0,
+  "t3.y": -77,
+  "t3.z": 52
+}
+
+iphone SE: 375x667
+
+{
+  "t3.x": 0,
+  "t3.y": -81,
+  "t3.z": 50
+}
+
+# Page 4
+
+MacbookAir: 1599x975
+
+
+
+iPad Pro 11: 581x831
+
 
 
 iphone 13 pro max: 428x926
 
 
+
 iphone SE: 375x667
 
+
+
+# Page 5
+
+
+MacbookAir: 1599x975
+
+
+
+
+iPad Pro 11: 581x831
+
+
+
+iphone 13 pro max: 428x926
+
+
+
+iphone SE: 375x667
 
 
 # Page 6

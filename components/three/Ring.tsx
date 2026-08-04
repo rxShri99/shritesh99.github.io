@@ -3,7 +3,6 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useEffect, useMemo, useRef } from 'react';
-import { useControls, button, levaStore } from 'leva';
 import ringVertexShader from '@/lib/shaders/ring.vert.glsl';
 import ringFragmentShader from '@/lib/shaders/ring.frag.glsl';
 
@@ -50,6 +49,20 @@ function getP2Y(w: number, h: number): number {
 // p2Z ≈ 138 - 7 * (w/h)
 function getP2Z(w: number, h: number): number {
   return 138 - 7 * (w / h);
+}
+
+// Responsive ring Y for page 3: f(aspect ratio), floored at -85
+// Fit from: iPhone 13 PM(0.46→-77), iPhone SE(0.56→-81), iPad Pro(0.70→-85), MacBook Air(1.64→-85)
+// p3Y ≈ max(-85, -62 - 33 * (w/h))
+function getP3Y(w: number, h: number): number {
+  return Math.max(-85, -62 - 33 * (w / h));
+}
+
+// Responsive ring Z for page 3: f(aspect ratio), floored at 49
+// Fit from: iPhone 13 PM(0.46→52), iPhone SE(0.56→50), iPad Pro(0.70→49), MacBook Air(1.64→49)
+// p3Z ≈ max(49, 58 - 13 * (w/h))
+function getP3Z(w: number, h: number): number {
+  return Math.max(49, 58 - 13 * (w / h));
 }
 
 // Responsive ring Y for page 6: f(aspect ratio)
@@ -127,21 +140,6 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
   const spinPhaseL = useRef(0);
   const { size } = useThree();
 
-  const t3 = useControls('t3', {
-    x: { value: PAGE_X_POSITIONS[2], step: 0.1 },
-    y: { value: -85, step: 0.1 },
-    z: { value: PAGE_Z_REST[1], step: 0.1 },
-    'Copy All': button(() => {
-      const data = levaStore.getData() as Record<string, { value?: unknown }>;
-      const values: Record<string, unknown> = {};
-      for (const [path, entry] of Object.entries(data)) {
-        if (entry && 'value' in entry) values[path] = entry.value;
-      }
-      const json = JSON.stringify(values, null, 2);
-      navigator.clipboard?.writeText(json).catch(() => console.log(json));
-    }),
-  });
-
   const RING_MATERIAL = {
     lightX: 0,
     lightY: 0,
@@ -190,17 +188,18 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
 
     const p2Y = getP2Y(size.width, size.height);
     const p2Z = getP2Z(size.width, size.height);
+    const p3Y = getP3Y(size.width, size.height);
+    const p3Z = getP3Z(size.width, size.height);
 
     const midPageX = [...PAGE_X_POSITIONS];
-    midPageX[2] = t3.x;
     const midPageY = [0, 1, 2, 3, 4, 5].map(
       (i) => ringY + (p6Y - ringY) * (i / 5)
     );
     midPageY[1] = p2Y;
-    midPageY[2] = t3.y;
+    midPageY[2] = p3Y;
     const midPageZ = [...pageZ];
     midPageZ[1] = p2Z;
-    midPageZ[2] = t3.z;
+    midPageZ[2] = p3Z;
     const midTargetX = interpolate(midPageX, scrollProgress);
     const midTargetY = interpolate(midPageY, scrollProgress);
     const midTargetZ = interpolate(midPageZ, scrollProgress);
