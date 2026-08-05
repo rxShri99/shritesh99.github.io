@@ -99,7 +99,7 @@ function MarqueeRow({
                 return (
                   <span
                     key={`${r}-${skill.name}`}
-                    className="flex items-center gap-2.5 md:gap-3 whitespace-nowrap px-5 py-3 md:px-7 md:py-4 rounded-full border border-white/20 bg-white/[0.08] backdrop-blur-md backdrop-saturate-150 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] text-base md:text-xl text-white/80"
+                    className="flex items-center gap-2.5 md:gap-3 whitespace-nowrap px-5 py-3 md:px-7 md:py-4 rounded-full border border-white/20 bg-[#12121a] md:bg-white/[0.08] md:backdrop-blur-md md:backdrop-saturate-150 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] text-base md:text-xl text-white/80"
                   >
                     {Icon && (
                       <Icon

@@ -17,6 +17,10 @@ export default function Scene({ isDevMode }: SceneProps) {
 
   return (
     <Canvas
+      // The rings are soft additive gradients — MSAA buys nothing visible and
+      // costs bandwidth, which matters on phones at devicePixelRatio 2.
+      gl={{ antialias: false, powerPreference: 'high-performance' }}
+      dpr={[1, 2]}
       style={{
         width: '100%',
         height: '100%',
