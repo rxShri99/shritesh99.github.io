@@ -26,7 +26,8 @@ interface RingProps {
 
 // ---------------------------------------------------------------------------
 // Pose keyframes, one per page, in page order:
-//   0 Hero, 1 Experience, 2 Projects, 3 Skills, 4 About, 5 Quote, 6 Contact.
+//   0 Hero, 1 Experience, 2 Projects, 3 Skills, 4 Community, 5 About,
+//   6 Quote, 7 Contact.
 // The camera descends from worldY 200 to -200 in equal steps per page, so each
 // pose's vertical position is a LIFT relative to its page's camera stop (the
 // hand-tuned absolute fits from BREAKPOINTS.md minus the old camera stops).
@@ -83,18 +84,19 @@ function getContactLift(w: number, h: number): number {
 // Constant lifts (were -36 / -118 against cameras at -40 / -120).
 const PROJECTS_LIFT = 4;
 const EXPERIENCE_LIFT = 2;
+const COMMUNITY_LIFT = 4;
 const QUOTE_LIFT = 2;
 
 // X keyframes for the mid ring per page
-const PAGE_X_POSITIONS = [0, 0, 0, 0, 0, 0, 0];
+const PAGE_X_POSITIONS = [0, 0, 0, 0, 0, 0, 0, 0];
 
 // Per-page X offsets from mid ring for S and L rings (Skills fans them out)
-const PAGE_X_OFFSETS_S = [0, 0, 0, 0.5, 0, 0, 0];
-const PAGE_X_OFFSETS_L = [0, 0, 0, 1.5, 0, 0, 0];
+const PAGE_X_OFFSETS_S = [0, 0, 0, 0.5, 0, 0, 0, 0];
+const PAGE_X_OFFSETS_L = [0, 0, 0, 1.5, 0, 0, 0, 0];
 
 // Per-page vertical offsets from mid ring for S and L rings (0 = same height)
-const PAGE_OFFSETS_S = [-2.5, -2.5, -2.5, -1, 0.5, 1.0, 2];
-const PAGE_OFFSETS_L = [2.5, 2.5, 2.5, -1, 1.0, 2.0, 4.0];
+const PAGE_OFFSETS_S = [-2.5, -2.5, -2.5, -1, -2, 0.5, 1.0, 2];
+const PAGE_OFFSETS_L = [2.5, 2.5, 2.5, -1, 3, 1.0, 2.0, 4.0];
 
 // Per-page rotation angles [x, y, z] in radians for each ring
 const PAGE_ROTATIONS_S: [number, number, number][] = [
@@ -102,6 +104,7 @@ const PAGE_ROTATIONS_S: [number, number, number][] = [
   [0, Math.PI / 2, 0], // Experience
   [Math.PI / 3, Math.PI / 4, 0], // Projects
   [0, -0.4, 0], // Skills
+  [1.0, 0.3, 0], // Community
   [0.5, 0.4, 0], // About
   [0.55, -0.35, 0], // Quote
   [0, 0, 0], // Contact
@@ -111,6 +114,7 @@ const PAGE_ROTATIONS_M: [number, number, number][] = [
   [Math.PI / 6, Math.PI / 6, 0], // Experience
   [Math.PI / 4, 0, 0], // Projects
   [1.1, 0, 0], // Skills
+  [0.9, -0.25, 0], // Community
   [0.4, -0.4, 0], // About
   [0.5, 0.25, 0], // Quote
   [0, 0, 0], // Contact
@@ -120,6 +124,7 @@ const PAGE_ROTATIONS_L: [number, number, number][] = [
   [-Math.PI / 4, 0, 0], // Experience
   [Math.PI / 6, -Math.PI / 4, 0], // Projects
   [-0.6, -1, 0], // Skills
+  [1.05, 0.15, 0], // Community
   [0.5, 0, 0], // About
   [0.55, -0.1, 0], // Quote
   [0, 0, 0], // Contact
@@ -219,6 +224,7 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
       spanDepth(0.8), // Experience
       spanDepth(0.6), // Projects
       getSkillsDepth(w, h),
+      spanDepth(0.7), // Community
       getAboutDepth(w, h),
       spanDepth(0.8), // Quote
       contactDepth,
@@ -230,6 +236,7 @@ const Ring = ({ currentPage, scrollProgress }: RingProps) => {
       EXPERIENCE_LIFT,
       PROJECTS_LIFT,
       getSkillsLift(w, h),
+      COMMUNITY_LIFT,
       getAboutLift(w, h),
       QUOTE_LIFT,
       getContactLift(w, h),

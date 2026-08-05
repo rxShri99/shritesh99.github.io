@@ -14,7 +14,7 @@ export const about = {
 
 export interface Skill {
   name: string;
-  category: 'frontend' | 'backend' | 'devops' | 'tools';
+  category: 'frontend' | 'backend' | 'devops' | 'cloud' | 'blockchain';
 }
 
 export const skills: Skill[] = [
@@ -34,21 +34,33 @@ export const skills: Skill[] = [
   { name: 'MongoDB', category: 'backend' },
   // DevOps
   { name: 'Docker', category: 'devops' },
+  { name: 'Kubernetes', category: 'devops' },
   { name: 'CI/CD', category: 'devops' },
-  { name: 'AWS', category: 'devops' },
+  { name: 'GitHub Actions', category: 'devops' },
   { name: 'Linux', category: 'devops' },
-  // Tools
-  { name: 'Git', category: 'tools' },
-  { name: 'VS Code', category: 'tools' },
-  { name: 'Figma', category: 'tools' },
-  { name: 'Jira', category: 'tools' },
+  { name: 'Git', category: 'devops' },
+  // Cloud
+  { name: 'AWS', category: 'cloud' },
+  { name: 'Google Cloud', category: 'cloud' },
+  { name: 'Cloudflare', category: 'cloud' },
+  { name: 'Vercel', category: 'cloud' },
+  { name: 'Netlify', category: 'cloud' },
+  { name: 'Serverless', category: 'cloud' },
+  // Blockchain
+  { name: 'Solidity', category: 'blockchain' },
+  { name: 'Ethereum', category: 'blockchain' },
+  { name: 'Hardhat', category: 'blockchain' },
+  { name: 'Web3.js', category: 'blockchain' },
+  { name: 'Smart Contracts', category: 'blockchain' },
+  { name: 'IPFS', category: 'blockchain' },
 ];
 
 export const skillCategories: Record<Skill['category'], string> = {
   frontend: 'Frontend',
   backend: 'Backend',
   devops: 'DevOps',
-  tools: 'Tools',
+  cloud: 'Cloud',
+  blockchain: 'Blockchain',
 };
 
 export interface Project {
@@ -127,7 +139,93 @@ export const experiences: Experience[] = [
       'Improved API response times by 40% through query optimisation and caching.',
     ],
   },
+  {
+    company: 'Company D',
+    role: 'Frontend Developer',
+    period: '2018 — 2019',
+    achievements: [
+      'Shipped a component library adopted across three product teams.',
+      'Cut bundle size by 35% through code-splitting and dependency audits.',
+    ],
+  },
+  {
+    company: 'Company E',
+    role: 'Software Engineering Intern',
+    period: '2017 — 2018',
+    achievements: [
+      'Automated regression test suites, freeing up a day of manual QA per release.',
+      'Prototyped internal tooling that graduated into a production service.',
+    ],
+  },
+  {
+    company: 'Open Source',
+    role: 'Contributor',
+    period: '2016 — 2017',
+    achievements: [
+      'Contributed fixes and features to popular JavaScript visualisation libraries.',
+      'Maintained documentation and triaged issues for a community of users.',
+    ],
+  },
 ];
+
+export interface CommunityEvent {
+  title: string;
+  type: 'conference' | 'hackathon' | 'meetup' | 'talk';
+  date: string;
+  location?: string;
+  description: string;
+  link?: string;
+  /** Photo shown in the horizontal slider — replace with real event photos */
+  image: string;
+}
+
+export const communityEvents: CommunityEvent[] = [
+  {
+    title: 'Conference Talk',
+    type: 'conference',
+    date: '2025',
+    location: 'City, Country',
+    description:
+      'Spoke about building immersive 3D experiences on the web with React Three Fiber.',
+    link: '#',
+    image: 'https://picsum.photos/seed/conference/1600/900',
+  },
+  {
+    title: 'Hackathon — Winner',
+    type: 'hackathon',
+    date: '2024',
+    location: 'City, Country',
+    description:
+      'Built a working prototype in 36 hours and took first place among 120 teams.',
+    link: '#',
+    image: 'https://picsum.photos/seed/hackathon/1600/900',
+  },
+  {
+    title: 'Tech Meetup',
+    type: 'meetup',
+    date: '2024',
+    location: 'City, Country',
+    description:
+      'Organised a local developer meetup on modern frontend tooling and performance.',
+    image: 'https://picsum.photos/seed/meetup/1600/900',
+  },
+  {
+    title: 'Lightning Talk',
+    type: 'talk',
+    date: '2023',
+    location: 'Online',
+    description:
+      'Gave a lightning talk on GLSL shaders for designers and frontend engineers.',
+    image: 'https://picsum.photos/seed/talk/1600/900',
+  },
+];
+
+export const eventTypeLabels: Record<CommunityEvent['type'], string> = {
+  conference: 'Conference',
+  hackathon: 'Hackathon',
+  meetup: 'Meetup',
+  talk: 'Talk',
+};
 
 export const quote = {
   text: 'Simplicity is the ultimate sophistication.',

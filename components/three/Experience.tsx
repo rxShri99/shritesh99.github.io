@@ -67,6 +67,7 @@ export default function Experience({
       '5': () => scrollToPage(4),
       '6': () => scrollToPage(5),
       '7': () => scrollToPage(6),
+      '8': () => scrollToPage(7),
     }),
   });
 

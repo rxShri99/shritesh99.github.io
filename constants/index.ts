@@ -37,13 +37,16 @@ export const COLOR_THEME_RGB = {
 
 /**
  * Height of each page section in vh units, in page order:
- * Hero, Experience, Projects, Skills, About, Quote, Contact.
- * Pages taller than 100vh pin a sticky viewport and scrub an internal
- * animation (Experience: timeline, Projects: card carousel); the ring's
- * keyframe transition to the next page plays across their final 100vh (the
- * sticky release), so every page still covers at most one transition.
+ * Hero, Experience, Projects, Skills, Community, About, Quote, Contact.
+ * Pages taller than 100vh hold the ring pose and run an internal animation
+ * (Experience: free-scrolling timeline, Projects: stacking cards — 100vh
+ * per card + settle room, Community: pinned image slider); the ring's
+ * keyframe transition to the next page plays across their final 100vh, so
+ * every page still covers at most one transition.
  */
-export const PAGE_HEIGHTS_VH = [100, 250, 300, 100, 100, 100, 100] as const;
+export const PAGE_HEIGHTS_VH = [
+  100, 350, 460, 100, 250, 100, 100, 100,
+] as const;
 
 /**
  * Three.js scene constants

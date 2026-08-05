@@ -71,6 +71,28 @@ canvas {
   display: block;
 }
 
+/* Skills marquee: the track holds two identical halves, so -50% loops
+   seamlessly. Duration/direction come from the component via CSS vars. */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee var(--marquee-duration, 30s) linear infinite;
+}
+
+.marquee-track[data-reverse='true'] {
+  animation-direction: reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
 /* Hide the native cursor while the custom cursor overlay is active
    (the Cursor component adds this class for fine pointers only) */
 @media (pointer: fine) {

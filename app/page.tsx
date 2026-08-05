@@ -7,6 +7,7 @@ import Hero from '@/components/pages/Hero';
 import Experience from '@/components/pages/Experience';
 import Projects from '@/components/pages/Projects';
 import Skills from '@/components/pages/Skills';
+import Community from '@/components/pages/Community';
 import About from '@/components/pages/About';
 import Quote from '@/components/pages/Quote';
 import Contact from '@/components/pages/Contact';
@@ -45,6 +46,7 @@ export default function Home() {
             <Experience />
             <Projects />
             <Skills />
+            <Community />
             <About />
             <Quote />
             <Contact />
