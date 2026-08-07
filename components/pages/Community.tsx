@@ -87,59 +87,54 @@ export default function Community() {
         </div>
 
         <div className="relative w-full">
-          <div
-            ref={trackRef}
-            className="flex gap-6 md:gap-8 w-max will-change-transform"
-            style={{
-              paddingLeft: sidePad,
-              paddingRight: EDGE_MARGIN,
-              transform: `translate3d(${translateX}px, 0, 0)`,
-              transition: 'transform 0.15s linear',
-            }}
-          >
-            {communityEvents.map((event, i) => {
-              // Panel centre in viewport coords → inner-image parallax shift.
-              const centerX =
-                sidePad + i * panelStep + panelWidth / 2 + translateX;
-              const shift = vw ? (centerX - vw / 2) * -PARALLAX_FACTOR : 0;
-              return (
-                <figure
-                  key={event.title}
-                  className="relative shrink-0 w-[82vw] sm:w-[560px] md:w-[720px] aspect-video rounded-[28px] overflow-hidden border border-white/10"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="absolute inset-y-0 left-1/2 h-full w-[130%] max-w-none object-cover"
-                    style={{
-                      transform: `translateX(calc(-50% + ${shift}px))`,
-                      transition: 'transform 0.15s linear',
-                    }}
-                  />
-                  {/* Scrim so the overlaid text stays readable */}
-                  <div className="absolute inset-0 bg-black/35" />
-
-                  {/* Big centred label, reference-style */}
-                  <figcaption className="absolute inset-0 flex items-center justify-center px-6">
-                    <span className="text-3xl sm:text-4xl md:text-5xl font-bold italic tracking-tight text-white text-center drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
-                      {event.title}
-                    </span>
-                  </figcaption>
-
-                  {/* Meta strip */}
-                  <div className="absolute bottom-0 inset-x-0 p-5 md:p-6 flex items-center justify-between gap-3">
-                    <span className="text-[11px] uppercase tracking-widest px-2.5 py-1 rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-white/85">
-                      {eventTypeLabels[event.type]}
-                    </span>
-                    <span className="text-xs text-white/70">
-                      {event.date}
-                      {event.location ? ` · ${event.location}` : ''}
-                    </span>
-                  </div>
-                </figure>
-              );
-            })}
+            <div
+              ref={trackRef}
+              className="flex gap-6 md:gap-8 w-max will-change-transform"
+              style={{
+                paddingLeft: sidePad,
+                paddingRight: EDGE_MARGIN,
+                transform: `translate3d(${translateX}px, 0, 0)`,
+                transition: 'transform 0.15s linear',
+              }}
+            >
+              {communityEvents.map((event, i) => {
+                // Panel centre in viewport coords → inner-image parallax shift.
+                const centerX =
+                  sidePad + i * panelStep + panelWidth / 2 + translateX;
+                const shift = vw ? (centerX - vw / 2) * -PARALLAX_FACTOR : 0;
+                return (
+                  <figure
+                    key={event.title}
+                    className="relative shrink-0 w-[82vw] sm:w-[560px] md:w-[720px] aspect-video rounded-[28px] overflow-hidden border border-white/10"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="absolute inset-y-0 left-1/2 h-full w-[130%] max-w-none object-cover"
+                      style={{
+                        transform: `translateX(calc(-50% + ${shift}px))`,
+                        transition: 'transform 0.15s linear',
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/35" />
+                    <figcaption className="absolute inset-0 flex items-center justify-center px-6">
+                      <span className="text-3xl sm:text-4xl md:text-5xl font-bold italic tracking-tight text-white text-center drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
+                        {event.title}
+                      </span>
+                    </figcaption>
+                    <div className="absolute bottom-0 inset-x-0 p-5 md:p-6 flex items-center justify-between gap-3">
+                      <span className="text-[11px] uppercase tracking-widest px-2.5 py-1 rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-white/85">
+                        {eventTypeLabels[event.type]}
+                      </span>
+                      <span className="text-xs text-white/70">
+                        {event.date}
+                        {event.location ? ` · ${event.location}` : ''}
+                      </span>
+                    </div>
+                  </figure>
+                );
+              })}
           </div>
         </div>
       </div>

@@ -95,11 +95,12 @@ export default function Projects() {
                 }}
                 aria-label={project.title}
               >
-                {/* Glass backdrop — heavy blur smears the stacked card beneath.
-                    Phones get a darker tint + lighter blur (large animated
-                    backdrop-filters are the main iOS frame-rate cost). */}
-                <div className="absolute inset-0 rounded-[28px] bg-[#0c0c13]/80 backdrop-blur-lg md:bg-white/[0.04] md:backdrop-blur-2xl border border-white/10" />
-                <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-white/[0.06] via-transparent to-transparent" />
+                {/* Glass backdrop — light tint + soft blur, no border. */}
+                <div
+                  className="absolute inset-0 rounded-[28px] bg-white/[0.04] backdrop-blur-[5px]"
+                  style={{ WebkitBackdropFilter: 'blur(10px)' }}
+                />
+                <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-white/5 via-transparent to-transparent" />
                 <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-blue-500/[0.08] via-transparent to-purple-500/[0.08] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                 {/* Glow spot following the cursor inside the card */}

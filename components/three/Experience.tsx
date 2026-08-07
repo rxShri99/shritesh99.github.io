@@ -32,9 +32,11 @@ function SceneSetup() {
 
 function scrollToPage(pageIndex: number) {
   const vh = window.innerHeight;
-  let offsetVh = 0;
-  for (let i = 0; i < pageIndex; i++) offsetVh += PAGE_HEIGHTS_VH[i];
-  const target = offsetVh * vh;
+  // PAGE_HEIGHTS_VH values are in CSS vh units (100 = one viewport),
+  // so divide by 100 to convert to pixels.
+  let offsetVhCss = 0;
+  for (let i = 0; i < pageIndex; i++) offsetVhCss += PAGE_HEIGHTS_VH[i];
+  const target = (offsetVhCss / 100) * vh;
   if (Math.abs(window.scrollY - target) < 2) {
     window.scrollTo({ top: target + 1 });
     requestAnimationFrame(() => {

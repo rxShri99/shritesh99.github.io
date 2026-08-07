@@ -37,8 +37,10 @@ export default function Home() {
             <Scene isDevMode={isDevMode} />
           </div>
 
-          {/* Custom cursor — exclusion + blur circle trailing the pointer */}
-          <Cursor />
+          {/* Custom cursor — exclusion + blur circle trailing the pointer.
+              Skipped in dev mode (hotkey) OR when NEXT_PUBLIC_APP_ENV=development
+              so the native cursor is available for Leva. */}
+          {!isDevMode && !sceneConfig.enableControls && <Cursor />}
 
           {/* Scrollable Content — order must match PAGE_HEIGHTS_VH in constants */}
           <div className="relative z-10 scroll-content pointer-events-none [&>*]:pointer-events-auto">
