@@ -2,11 +2,10 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   experimental: {
-    optimizePackageImports: [
-      'three',
-      '@react-three/fiber',
-      '@react-three/drei',
-    ],
+    // NOTE: '@react-three/fiber' must NOT be listed here — the import rewrite
+    // creates a second module instance, so @react-spring/three registers its
+    // frame-loop effect on a fiber copy no Canvas drives (springs never move).
+    optimizePackageImports: ['three', '@react-three/drei'],
   },
   compress: true,
   productionBrowserSourceMaps: false,

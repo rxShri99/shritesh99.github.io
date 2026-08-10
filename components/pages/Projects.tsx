@@ -97,7 +97,7 @@ export default function Projects() {
               >
                 {/* Glass backdrop — light tint + soft blur, no border. */}
                 <div
-                  className="absolute inset-0 rounded-[28px] bg-white/[0.04] backdrop-blur-[5px]"
+                  className="absolute inset-0 rounded-[28px] bg-white/[0.04] backdrop-blur-xl md:backdrop-blur-[5px]"
                   style={{ WebkitBackdropFilter: 'blur(10px)' }}
                 />
                 <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-white/5 via-transparent to-transparent" />

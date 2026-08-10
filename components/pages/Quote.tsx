@@ -13,10 +13,10 @@ export default function Quote() {
         >
           &ldquo;
         </span>
-        <blockquote className="text-2xl md:text-4xl font-medium tracking-tight leading-snug text-white/90">
+        <blockquote className="text-2xl md:text-4xl font-medium tracking-tight leading-snug text-white/90 drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
           {quote.text}
         </blockquote>
-        <figcaption className="text-sm md:text-base uppercase tracking-widest text-white/40">
+        <figcaption className="text-sm md:text-base uppercase tracking-widest text-white/50 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
           — {quote.author}
         </figcaption>
       </figure>

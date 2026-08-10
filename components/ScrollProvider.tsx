@@ -7,6 +7,13 @@ import Lenis from '@studio-freight/lenis';
 
 gsap.registerPlugin(ScrollTrigger);
 
+declare global {
+  interface Window {
+    /** Exposed so overlays (WrapMenu) can lock scrolling via lenis.stop() */
+    __lenis?: Lenis;
+  }
+}
+
 export function ScrollProvider({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
 
@@ -23,6 +30,7 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
       });
 
       lenisRef.current = lenis;
+      window.__lenis = lenis;
 
       // Connect GSAP ScrollTrigger to Lenis
       lenis.on('scroll', ScrollTrigger.update);
@@ -50,6 +58,7 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     return () => {
       if (lenis) {
         lenis.destroy();
+        delete window.__lenis;
       }
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };

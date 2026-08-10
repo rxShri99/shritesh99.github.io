@@ -35,3 +35,19 @@ export function randomVector3(scale: number = 1): Vector3 {
 export function randomColor(): number {
   return Math.floor(Math.random() * 16777215);
 }
+
+/**
+ * Piecewise-linear interpolation across evenly spaced keyframes,
+ * with progress in [0, 1] spanning the whole track.
+ */
+export function interpolateKeyframes(
+  keyframes: number[],
+  progress: number
+): number {
+  const scaled = progress * (keyframes.length - 1);
+  const idx = Math.floor(scaled);
+  const t = scaled - idx;
+  const from = keyframes[Math.min(idx, keyframes.length - 1)];
+  const to = keyframes[Math.min(idx + 1, keyframes.length - 1)];
+  return from + (to - from) * t;
+}

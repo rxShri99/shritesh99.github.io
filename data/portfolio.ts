@@ -8,8 +8,13 @@ export const hero = {
 };
 
 export const about = {
-  bio: ``,
-  highlights: [''],
+  bio: `I'm a full-stack engineer who loves building immersive, detail-obsessed web experiences — from scroll-driven 3D scenes to the infrastructure that ships them. When I'm not writing code, I'm probably at a hackathon, a meetup, or deep in a side project.`,
+  highlights: [
+    '5+ years building for the web',
+    'Frontend, backend & cloud',
+    '3D / WebGL experiences',
+    'Blockchain & Web3 curious',
+  ],
 };
 
 export interface Skill {
