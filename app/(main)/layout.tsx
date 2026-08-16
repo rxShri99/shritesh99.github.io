@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 // Site's decorative display font — applied to headings via globals.css.
 const entanglement = localFont({
-  src: '../../public/fonts/Entanglement-rgpRB.ttf',
+  src: '../../public/fonts/Andromeda-eR2n.ttf',
   variable: '--font-entanglement',
   weight: '400',
   display: 'swap',
@@ -24,9 +24,9 @@ const entanglement = localFont({
 
 // Available for regular use via the `font-bungee-hairline` utility or the
 // `.bungee-hairline-regular` class.
-const bungeeHairline = Bungee_Hairline({
+const bungeeHairline = localFont({
+  src: '../../public/fonts/Ballega-BL9EB.otf',
   variable: '--font-bungee-hairline',
-  subsets: ['latin'],
   weight: '400',
   display: 'swap',
 });

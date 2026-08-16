@@ -62,14 +62,15 @@ interface DeckLoaderProps {
  */
 export default function DeckLoader({ slug }: DeckLoaderProps) {
   const [Content, setContent] = useState<ComponentType | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+
+  // An unregistered slug is knowable from props alone, so it's derived rather
+  // than pushed into state from the effect.
+  const factory = deckImports[slug];
+  const notFound = !factory || loadFailed;
 
   useEffect(() => {
-    const factory = deckImports[slug];
-    if (!factory) {
-      setNotFound(true);
-      return;
-    }
+    if (!factory) return;
     let cancelled = false;
     factory()
       .then((mod) => {
@@ -77,12 +78,12 @@ export default function DeckLoader({ slug }: DeckLoaderProps) {
       })
       .catch((err) => {
         console.error(`Failed to load deck '${slug}':`, err);
-        if (!cancelled) setNotFound(true);
+        if (!cancelled) setLoadFailed(true);
       });
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [factory, slug]);
 
   if (notFound) {
     return (

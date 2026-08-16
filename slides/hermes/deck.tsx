@@ -91,8 +91,17 @@ export default function HermesDeck() {
       </Slide>
       <Slide className="center">
         <h1>Let&apos;s Build</h1>
-        <div style={{ width: '100%', height: '0', paddingBottom: '100%', position: 'relative' }}><iframe src="https://giphy.com/embed/IzzAJCkxyVKGqZjlvV" width="100%" height="100%" style={{ position: 'absolute' }} frameBorder="0" className="giphy-embed" allowFullScreen></iframe></div><p><a href="https://giphy.com/gifs/lego-IzzAJCkxyVKGqZjlvV">via GIPHY</a></p>
-        </Slide>
+        {/* Square gif, sized to fit reveal's 960x700 space under the heading. */}
+        <div style={{ width: '440px', height: '440px', margin: '0 auto' }}>
+          <iframe
+            src="https://giphy.com/embed/IzzAJCkxyVKGqZjlvV"
+            style={{ width: '100%', height: '100%' }}
+            frameBorder="0"
+            className="giphy-embed"
+            allowFullScreen
+          ></iframe>
+        </div>
+      </Slide>
 
       <Stack>
         <Slide>
@@ -150,7 +159,7 @@ export default function HermesDeck() {
       </Slide>
 
       <Slide>
-        <h2>Let's talk to Hermes</h2>
+        <h2>Let&apos;s talk to Hermes</h2>
         <br/>
         <p>Type `hermes` to start the Hermes CLI</p>
         <Markdown>
