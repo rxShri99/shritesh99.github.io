@@ -4,13 +4,13 @@ import {
   GizmoHelper,
   GizmoViewport,
   PerspectiveCamera,
+  StatsGl,
 } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useControls, buttonGroup } from 'leva';
 import { sceneConfig } from '@/config';
 import { PAGE_HEIGHTS_VH } from '@/constants';
 import { ReactNode, useRef, useEffect } from 'react';
-import { Perf } from 'r3f-perf';
 import * as THREE from 'three';
 
 interface ExperienceProps {
@@ -104,7 +104,7 @@ export default function Experience({
 
       {(isDevMode || sceneConfig.enableControls) && (
         <>
-          <Perf position="top-left" />
+          <StatsGl trackGPU className="stats-gl" />
           <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
             <GizmoViewport
               axisColors={['red', 'green', 'blue']}

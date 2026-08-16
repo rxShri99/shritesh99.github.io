@@ -101,6 +101,19 @@ canvas {
   display: block;
 }
 
+/* Dev-only FPS/CPU/GPU panel. drei's <StatsGl> unconditionally strips the
+   inline styles stats-gl ships with, so the panel has to be placed here.
+   Top-left keeps it clear of the Leva panel. */
+.stats-gl {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100000;
+  display: flex;
+  gap: 2px;
+  pointer-events: none;
+}
+
 /* Skills marquee: the track holds two identical halves, so -50% loops
    seamlessly. Duration/direction come from the component via CSS vars. */
 @keyframes marquee {
