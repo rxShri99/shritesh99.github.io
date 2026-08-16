@@ -13,8 +13,12 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  /* Body copy = Bungee Hairline. Titles/subtitles override to Entanglement. */
+  --font-sans: var(--font-bungee-hairline);
   --font-mono: var(--font-geist-mono);
+  --font-geist: var(--font-geist-sans);
+  --font-entanglement: var(--font-entanglement);
+  --font-bungee-hairline: var(--font-bungee-hairline);
 }
 
 html,
@@ -27,13 +31,39 @@ body,
 body {
   background: var(--background);
   color: var(--foreground);
+  /* Regular text = Bungee Hairline, Geist as a legibility fallback. */
   font-family:
+    var(--font-bungee-hairline),
     var(--font-geist-sans),
     system-ui,
     -apple-system,
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Titles & subtitles default to Entanglement. The `.reveal h*` selectors from
+   the reveal.js themes are more specific and still win inside decks. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.subtitle {
+  font-family: var(--font-entanglement), cursive;
+  font-weight: 400;
+}
+
+.entanglement-regular {
+  font-family: var(--font-entanglement), cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+.bungee-hairline-regular {
+  font-family: var(--font-bungee-hairline), sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 /* Smooth scrolling and performance optimizations - scoped to scrollable content only */
@@ -91,6 +121,68 @@ canvas {
   .marquee-track {
     animation: none;
   }
+}
+
+/* Glowing cards (slides index). SlideCards.tsx feeds each card the pointer
+   position in its own coordinate space via --glow-x/--glow-y, and a proximity
+   falloff via --glow-opacity. The short opacity transition is what smooths the
+   per-frame updates, so the light appears to trail the cursor. */
+.glow-card {
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-opacity: 0;
+  --glow-hue: 229;
+  position: relative;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.02);
+  transition: background-color 0.3s ease-out;
+}
+
+.glow-card:hover {
+  background-color: rgba(255, 255, 255, 0.035);
+}
+
+.glow-card::before,
+.glow-card::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--glow-opacity);
+  transition: opacity 0.25s ease-out;
+}
+
+/* The lit border: a radial gradient masked down to the 1px ring so only the
+   edge nearest the cursor glows. */
+.glow-card::before {
+  inset: -1px;
+  padding: 1px;
+  background: radial-gradient(
+    14rem 14rem at var(--glow-x) var(--glow-y),
+    hsl(var(--glow-hue) 95% 72%),
+    hsl(var(--glow-hue) 95% 68% / 0.4) 40%,
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+/* The spot on the card's backdrop. Content sits in a positioned wrapper so it
+   paints above this layer and stays crisp. */
+.glow-card::after {
+  inset: 0;
+  background: radial-gradient(
+    20rem 20rem at var(--glow-x) var(--glow-y),
+    hsl(var(--glow-hue) 90% 60% / 0.16),
+    transparent 65%
+  );
 }
 
 /* Hide the native cursor while the custom cursor overlay is active
