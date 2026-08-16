@@ -91,12 +91,10 @@ export default function HermesDeck() {
       </Slide>
       <Slide className="center">
         <h1>Let&apos;s Build</h1>
-        {/* Square gif, sized to fit reveal's 960x700 space under the heading. */}
         <div style={{ width: '440px', height: '440px', margin: '0 auto' }}>
           <iframe
             src="https://giphy.com/embed/IzzAJCkxyVKGqZjlvV"
             style={{ width: '100%', height: '100%' }}
-            frameBorder="0"
             className="giphy-embed"
             allowFullScreen
           ></iframe>
@@ -137,25 +135,26 @@ export default function HermesDeck() {
       <Slide>
         <h2>Hermes Configure</h2>
         <br/>
-        <p>hermes model - choose your LLM provider and model</p>
-        <Code language="bash">
-          {`
-            hermes model       # choose your LLM provider and model
-          `}
-        </Code>
-        <p>hermes tools - configure enabled tools</p>
-        <Code language="bash">
-          {`
-            hermes tools       # configure enabled tools
-          `}
-        </Code>
-        <p>hermes setup - run the full setup wizard</p>
-        <Code language="bash">
-          {`
-            hermes setup       # run the full setup wizard
-          `}
-        </Code>
-        <br/>
+        <div className="centre">
+          <p>hermes model - choose your LLM provider and model</p>
+          <Code language="bash">
+            {`
+              hermes model       # choose your LLM provider and model
+            `}
+          </Code>
+          <p>hermes tools - configure enabled tools</p>
+          <Code language="bash">
+            {`
+              hermes tools       # configure enabled tools
+            `}
+          </Code>
+          <p>hermes setup - run the full setup wizard</p>
+          <Code language="bash">
+            {`
+              hermes setup       # run the full setup wizard
+            `}
+          </Code>
+        </div>
       </Slide>
 
       <Slide>

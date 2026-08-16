@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono, Bungee_Hairline } from 'next/font/google';
+import { Geist, Geist_Mono } from 'next/font/google';
 import localFont from 'next/font/local';
 import { AppProvider } from '@/context/AppContext';
 import '../globals.css';
