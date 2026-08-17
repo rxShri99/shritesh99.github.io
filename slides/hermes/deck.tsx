@@ -91,6 +91,11 @@ export default function HermesDeck() {
       <Slide>
         <h2>Memory: mem0</h2>
         <MarkdownInline src="/slides/hermes/mem0.md" />
+        <Markdown>
+          {`
+            > Server-side LLM fact extraction with semantic search and hybrid multi-signal retrieval via the Mem0.
+          `}
+        </Markdown>
       </Slide>
       <Slide className="center">
         <h1>Let&apos;s Build</h1>
@@ -212,13 +217,13 @@ export default function HermesDeck() {
         <h2>Telegram Integration</h2>
         <br />
       </Slide>
-      <Slide>
+      {/* <Slide>
         <h2>Give your AI Agent&apos;s Soul.md</h2>
         <p>Edit `~/.hermes/SOUL.md`</p>
         <Markdown>
           {`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`}
         </Markdown>
-      </Slide>
+      </Slide> */}
       <Slide>
         <h3>Multi-Agents</h3>
         <Markdown className="text-left" style={{ fontSize: '0.5em' }}>
@@ -299,7 +304,33 @@ export default function HermesDeck() {
         </div>
       </Slide>
       <Slide>
+        <h2>Mem0 Memory - Containers</h2>
+      </Slide>
+      <Slide>
         <h2>Mem0 Memory</h2>
+        <p>Edit `~/.hermes/config.yaml` and all the profiles</p>
+        <Code language="yaml">
+          {`
+              mcp_servers:
+                mem0:
+                  url: http://localhost:8888/mcp
+            `}
+        </Code>
+        <p>Restart the gateway and reload the MCP server:</p>
+        <Code language="bash">
+          {`
+              hermes gateway restart
+              hermes 
+          `}
+        </Code>
+        <Code>
+          {`
+             /reload_mcp 
+          `}
+        </Code>
+      </Slide>
+      <Slide>
+        <h2>Use cases</h2>
       </Slide>
       <Slide className="center">
         <h2>Thank You!</h2>
