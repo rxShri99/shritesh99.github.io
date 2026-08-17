@@ -13,60 +13,7 @@ const iconPaths: Record<string, string> = {
 export default function Contact() {
   return (
     <div className="relative min-h-screen flex items-center justify-center px-6">
-      <div className="max-w-xl w-full text-center space-y-10">
-        {/* Heading */}
-        <Parallax speed={0.35} className="space-y-3">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Get in Touch
-          </h2>
-          <p className="text-white/50 text-lg">
-            Have a project in mind or just want to say hello?
-          </p>
-        </Parallax>
-
-        {/* Email */}
-        <Parallax speed={0.25}>
-          <a
-            href={`mailto:${contact.email}`}
-            className="inline-block text-xl md:text-2xl font-medium text-blue-400 hover:text-blue-300 transition-colors underline underline-offset-4"
-          >
-            {contact.email}
-          </a>
-        </Parallax>
-
-        {/* Social Links */}
-        <Parallax speed={0.15} className="flex items-center justify-center gap-6">
-          {contact.links.map((link) => (
-            <a
-              key={link.label}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex flex-col items-center gap-2"
-            >
-              <span className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-blue-400 group-hover:bg-blue-400/10 transition-all">
-                <svg
-                  className="w-5 h-5 fill-white/70 group-hover:fill-blue-400 transition-colors"
-                  viewBox="0 0 24 24"
-                >
-                  <path d={iconPaths[link.icon] ?? ''} />
-                </svg>
-              </span>
-              <span className="text-xs text-white/40 group-hover:text-white/70 transition-colors">
-                {link.label}
-              </span>
-            </a>
-          ))}
-        </Parallax>
-
-        {/* Footer */}
-        <Parallax speed={0.05}>
-          <p className="text-white/20 text-sm pt-8">
-            &copy; {new Date().getFullYear()} Shritesh Jamulkar. All rights
-            reserved.
-          </p>
-        </Parallax>
-      </div>
+      <div className="max-w-xl w-full text-center space-y-10"></div>
     </div>
   );
 }
