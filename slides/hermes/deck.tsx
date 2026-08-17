@@ -28,9 +28,7 @@ const plugins = [RevealHighlight, RevealNotes, RevealMarkdown];
 export default function HermesDeck() {
   return (
     <Deck config={config} plugins={plugins} className="reveal-deck-root">
-      <Slide backgroundImage={logo.src} data-background-size="contain">
-        
-      </Slide>
+      <Slide backgroundImage={logo.src} data-background-size="contain"></Slide>
       <Slide>
         <h2>About Me</h2>
       </Slide>
@@ -39,7 +37,8 @@ export default function HermesDeck() {
           <div className="r-vstack items-stretch">
             <h2>What is Hermes?</h2>
             <p style={{ textAlign: 'left' }}>
-                The self-improving AI agent and agent management platform built by <a href="https://nousresearch.com/">Nous Research</a>.   
+              The self-improving AI agent and agent management platform built by{' '}
+              <a href="https://nousresearch.com/">Nous Research</a>.
             </p>
             <ul>
               <li>Persistent Memory</li>
@@ -72,7 +71,11 @@ export default function HermesDeck() {
         </Code>
         <h4 style={{ textAlign: 'left' }}>Refrences</h4>
         <ul className="r-hstack justify-start">
-          <li><a href="https://hermes-agent.nousresearch.com/docs/user-guide/configuration">Hermes Configuration</a></li>
+          <li>
+            <a href="https://hermes-agent.nousresearch.com/docs/user-guide/configuration">
+              Hermes Configuration
+            </a>
+          </li>
         </ul>
       </Slide>
       <Slide>
@@ -80,13 +83,14 @@ export default function HermesDeck() {
       </Slide>
       <Slide>
         <h2>Architecture</h2>
-          <MarkdownInline src="/slides/hermes/arch.md" />
+        <MarkdownInline src="/slides/hermes/arch.md" />
       </Slide>
       <Slide>
         <h2>Hermes + Qwen</h2>
       </Slide>
       <Slide>
         <h2>Memory: mem0</h2>
+        <MarkdownInline src="/slides/hermes/mem0.md" />
       </Slide>
       <Slide className="center">
         <h1>Let&apos;s Build</h1>
@@ -99,11 +103,10 @@ export default function HermesDeck() {
           ></iframe>
         </div>
       </Slide>
-
       <Stack>
         <Slide>
           <h2>Hermes Setup</h2>
-          <br/>
+          <br />
           <p>Linux / macOS / WSL2 / Android (Termux)</p>
           <Code language="bash">
             {`curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash`}
@@ -111,85 +114,103 @@ export default function HermesDeck() {
           <Code language="bash">
             {`source ~/.bashrc   # or source ~/.zshrc`}
           </Code>
-          <br/>
+          <br />
           <p>Windows (native) - Run in powershell:</p>
           <Code language="bash">
             {`iex (irm https://hermes-agent.nousresearch.com/install.ps1) `}
           </Code>
-
         </Slide>
         <Slide>
           <h2>Hermes Desktop / GUI</h2>
-          <br/>
+          <br />
           <p>Hermes Desktop - Run in terminal:</p>
           <Code language="bash">
             {`
               hermes desktop
             `}
           </Code>
-          <br/>
+          <br />
         </Slide>
       </Stack>
-
       <Slide>
         <h2>Hermes Configure</h2>
-        <br/>
-        <div className="centre">
-          <p>hermes model - choose your LLM provider and model</p>
-          <Code language="bash">
-            {`
+        <br />
+        <p>hermes model - choose your LLM provider and model</p>
+        <Code language="bash">
+          {`
               hermes model       # choose your LLM provider and model
             `}
-          </Code>
-          <p>hermes tools - configure enabled tools</p>
-          <Code language="bash">
-            {`
+        </Code>
+        <p>hermes tools - configure enabled tools</p>
+        <Code language="bash">
+          {`
               hermes tools       # configure enabled tools
             `}
-          </Code>
-          <p>hermes setup - run the full setup wizard</p>
-          <Code language="bash">
-            {`
+        </Code>
+        <p>hermes setup - run the full setup wizard</p>
+        <Code language="bash">
+          {`
               hermes setup       # run the full setup wizard
             `}
-          </Code>
-        </div>
+        </Code>
+        <Markdown
+          style={{ fontSize: '0.5em', textAlign: 'center' }}
+        >{`> You can import your OpenClaw Settings too.`}</Markdown>
       </Slide>
-
       <Slide>
         <h2>Let&apos;s talk to Hermes</h2>
-        <br/>
+        <br />
         <p>Type `hermes` to start the Hermes CLI</p>
-        <Markdown>
-          ```
-          hermes
-          ```
-        </Markdown>
+        <Markdown>``` hermes ```</Markdown>
       </Slide>
-
       <Slide>
         <h2>Connecting with Local Model</h2>
+        <br />
+        <p>
+          Type `hermes model` to change the model and choose Ollama or LMStudio
+        </p>
+        <Code language="bash">
+          {`
+              hermes model       # choose your LLM provider and model
+            `}
+        </Code>
+        <p>Or</p>
+        <p>Edit `~/.hermes/config.yaml` and restart the gateway</p>
+        <Code language="yaml">
+          {`
+          model:
+            default: google/gemma-4-12b-qat
+            provider: lmstudio
+            timeout: 120
+            base_url: http://127.0.0.1:1234/v1
+          `}
+        </Code>
       </Slide>
       <Slide>
-        <h2>Telegram Integration</h2>
-        <br/>
+        <h2>Hermes Gateway</h2>
+        <br />
+        <p>hermes gateway setup - setup the gateway</p>
         <Code language="bash">
           {`
             hermes gateway setup
           `}
         </Code>
-        <br/>
+        <p>hermes gateway start - start the gateway</p>
         <Code language="bash">
           {`
             hermes gateway start
           `}
         </Code>
-        <br/>
+        <p>hermes gateway stop - stop the gateway</p>
         <Code language="bash">
           {`
             hermes gateway stop
           `}
         </Code>
+      </Slide>
+      <Slide>
+        <h2>Telegram Integration</h2>
+        <br />
       </Slide>
       <Slide>
         <h2>Give your AI Agent&apos;s Soul.md</h2>
@@ -219,6 +240,63 @@ export default function HermesDeck() {
       </Slide>
       <Slide>
         <h2>Hermes Profiles</h2>
+        <br />
+        <p>Research Agent</p>
+        <Code language="bash">
+          {`
+              hermes profile create researcher
+            `}
+        </Code>
+        <p>Analysis Agent</p>
+        <Code language="bash">
+          {`
+              hermes profile create analyst
+            `}
+        </Code>
+        <p>Synthesis Agent</p>
+        <Code language="bash">
+          {`
+              hermes profile create synthesizer
+            `}
+        </Code>
+      </Slide>
+      <Slide>
+        <h2>Hermes Profiles - Soul.md</h2>
+        <br />
+        <div style={{ fontSize: '0.7em' }}>
+          <p>Orchestrator Agent - Edit `~/.hermes/SOUL.md`</p>
+          <ul>
+            <li>
+              <a href="/slides/hermes/Orchestrator-Agent-Soul.md">
+                Orchestrator Agent Soul.md
+              </a>
+            </li>
+          </ul>
+          <p>Research Agent - Edit `~/.hermes/profiles/researcher/SOUL.md`</p>
+          <ul>
+            <li>
+              <a href="/slides/hermes/Research-Agent-Soul.md">
+                Research Agent Soul.md
+              </a>
+            </li>
+          </ul>
+          <p>Analysis Agent - Edit `~/.hermes/profiles/analyst/SOUL.md`</p>
+          <ul>
+            <li>
+              <a href="/slides/hermes/Analysis-Agent-Soul.md">
+                Analysis Agent Soul.md
+              </a>
+            </li>
+          </ul>
+          <p>Synthesis Agent - Edit `~/.hermes/profiles/synthesizer/SOUL.md`</p>
+          <ul>
+            <li>
+              <a href="/slides/hermes/Synthesis-Agent-Soul.md">
+                Synthesis Agent Soul.md
+              </a>
+            </li>
+          </ul>
+        </div>
       </Slide>
       <Slide>
         <h2>Mem0 Memory</h2>

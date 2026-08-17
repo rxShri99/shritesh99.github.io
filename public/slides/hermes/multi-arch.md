@@ -1,28 +1,30 @@
 ```mermaid
-flowchart TD
+flowchart TB
     USER([User])
 
-    USER --> ORCH[Research Orchestrator]
+    USER --> HERMES[Hermes]
 
-    ORCH --> RESEARCH[Research Agent]
-    ORCH --> ANALYST[Analysis Agent]
-    ORCH --> SYNTH[Synthesis Agent]
+    HERMES --> ORCH[Research Orchestrator]
 
-    RESEARCH -->|Findings & Sources| ANALYST
-    ANALYST -->|Analysis & Insights| SYNTH
-    SYNTH -->|Final Research Result| ORCH
+    ORCH --> R[Research Agent]
+    ORCH --> A[Analysis Agent]
+    ORCH --> S[Synthesis Agent]
 
-    RESEARCH --> MEM[(Mem0)]
-    ANALYST --> MEM
-    SYNTH --> MEM
-    ORCH --> MEM
+    R --> QWEN[Local Qwen Model]
+    A --> QWEN
+    S --> QWEN
 
-    MEM --> PG[(pgvector)]
-    MEM --> NEO[(Neo4j)]
+    R --> MEM0[Mem0]
+    A --> MEM0
+    S --> MEM0
+    ORCH --> MEM0
 
-    RESEARCH -.->|retrieve prior research| MEM
-    ANALYST -.->|retrieve user context| MEM
-    SYNTH -.->|retrieve preferences & history| MEM
+    MEM0 --> PG[(pgvector)]
+    MEM0 --> NEO[(Neo4j)]
 
-    ORCH --> RESPONSE([Response to User])
+    R --> TOOLS[Research Tools]
+    R --> SOURCES[Sources]
+
+    S --> RESULT[Research Result]
+    RESULT --> USER
 ```
