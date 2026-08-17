@@ -1,4 +1,5 @@
 import { skills, skillCategories, type Skill } from '@/data/portfolio';
+import Parallax from '@/components/Parallax';
 import type { IconType } from 'react-icons';
 import {
   SiReact,
@@ -128,15 +129,17 @@ export default function Skills() {
       {/* Same heading position as the other pages: flex-centered column */}
       <div className="w-full flex justify-center px-6 mb-10 md:mb-14">
         <div className="max-w-3xl w-full">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Skills &amp; Tech Stack
-          </h2>
+          <Parallax speed={0.35}>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+              Skills &amp; Tech Stack
+            </h2>
+          </Parallax>
         </div>
       </div>
 
       <div className="w-full space-y-7 md:space-y-9">
         {ROW_ORDER.map((category, i) => (
-          <div key={category} className="space-y-2.5">
+          <Parallax key={category} speed={0.1 + i * 0.05} className="space-y-2.5">
             <div className="w-full flex justify-center px-6">
               <div className="max-w-3xl w-full">
                 <p className="text-xs uppercase tracking-widest text-white/40">
@@ -149,7 +152,7 @@ export default function Skills() {
               reverse={i % 2 === 1}
               duration={26 + i * 5}
             />
-          </div>
+          </Parallax>
         ))}
       </div>
     </section>

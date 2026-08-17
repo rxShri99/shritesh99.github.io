@@ -1,4 +1,5 @@
 import { contact } from '@/data/portfolio';
+import Parallax from '@/components/Parallax';
 
 const iconPaths: Record<string, string> = {
   github:
@@ -14,25 +15,27 @@ export default function Contact() {
     <div className="relative min-h-screen flex items-center justify-center px-6">
       <div className="max-w-xl w-full text-center space-y-10">
         {/* Heading */}
-        <div className="space-y-3">
+        <Parallax speed={0.35} className="space-y-3">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
             Get in Touch
           </h2>
           <p className="text-white/50 text-lg">
             Have a project in mind or just want to say hello?
           </p>
-        </div>
+        </Parallax>
 
         {/* Email */}
-        <a
-          href={`mailto:${contact.email}`}
-          className="inline-block text-xl md:text-2xl font-medium text-blue-400 hover:text-blue-300 transition-colors underline underline-offset-4"
-        >
-          {contact.email}
-        </a>
+        <Parallax speed={0.25}>
+          <a
+            href={`mailto:${contact.email}`}
+            className="inline-block text-xl md:text-2xl font-medium text-blue-400 hover:text-blue-300 transition-colors underline underline-offset-4"
+          >
+            {contact.email}
+          </a>
+        </Parallax>
 
         {/* Social Links */}
-        <div className="flex items-center justify-center gap-6">
+        <Parallax speed={0.15} className="flex items-center justify-center gap-6">
           {contact.links.map((link) => (
             <a
               key={link.label}
@@ -54,13 +57,15 @@ export default function Contact() {
               </span>
             </a>
           ))}
-        </div>
+        </Parallax>
 
         {/* Footer */}
-        <p className="text-white/20 text-sm pt-8">
-          &copy; {new Date().getFullYear()} Shritesh Jamulkar. All rights
-          reserved.
-        </p>
+        <Parallax speed={0.05}>
+          <p className="text-white/20 text-sm pt-8">
+            &copy; {new Date().getFullYear()} Shritesh Jamulkar. All rights
+            reserved.
+          </p>
+        </Parallax>
       </div>
     </div>
   );

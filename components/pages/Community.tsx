@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { communityEvents, eventTypeLabels } from '@/data/portfolio';
 import { useScroll } from '@/context/ScrollContext';
 import { PAGE_HEIGHTS_VH } from '@/constants';
+import Parallax from '@/components/Parallax';
 
 const PAGE_INDEX = 4;
 // Sticky element (h-screen = 100vh) only pins for (sectionHeight - 100vh) of
@@ -80,9 +81,11 @@ export default function Community() {
         {/* Same heading position as the other pages: flex-centered max-w-2xl column */}
         <div className="w-full flex justify-center px-6 mb-10 md:mb-14">
           <div className="max-w-2xl w-full">
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight">
-              Community
-            </h2>
+            <Parallax trigger="section" speed={0.3}>
+              <h2 className="text-4xl md:text-6xl font-bold tracking-tight">
+                Community
+              </h2>
+            </Parallax>
           </div>
         </div>
 

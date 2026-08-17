@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { experiences } from '@/data/portfolio';
 import { PAGE_HEIGHTS_VH } from '@/constants';
+import Parallax from '@/components/Parallax';
 
 const PAGE_INDEX = 1;
 // Entries light up when their dot crosses this fraction of the viewport
@@ -48,12 +49,18 @@ export default function Experience() {
     >
       <div className="flex flex-col items-center px-6 pt-[14vh]">
         <div className="w-full max-w-3xl mb-[8vh]">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Experience
-          </h2>
+          <Parallax speed={0.35}>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+              Experience
+            </h2>
+          </Parallax>
         </div>
 
-        <div ref={listRef} className="relative w-full max-w-3xl">
+        {/* Parallax wraps the whole timeline so the line, dots and entries
+            drift together — activation is measured from live rects, so the
+            light-up logic stays in sync. */}
+        <Parallax speed={0.1} className="w-full max-w-3xl">
+          <div ref={listRef} className="relative w-full">
           {/* Base line */}
           <div className="absolute top-1 bottom-0 left-[6.5rem] md:left-[14.5rem] w-px bg-white/10" />
           {/* Gradient fill chasing the activation point */}
@@ -103,7 +110,8 @@ export default function Experience() {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        </Parallax>
       </div>
     </section>
   );

@@ -4,6 +4,7 @@ import { type MouseEvent } from 'react';
 import { projects } from '@/data/portfolio';
 import { useScroll } from '@/context/ScrollContext';
 import { PAGE_HEIGHTS_VH } from '@/constants';
+import Parallax from '@/components/Parallax';
 
 const PAGE_INDEX = 2;
 const SECTION_VH = PAGE_HEIGHTS_VH[PAGE_INDEX];
@@ -65,9 +66,11 @@ export default function Projects() {
             {i === 0 && (
               <div className="absolute top-0 inset-x-0 pt-14 md:pt-20 flex justify-center px-6">
                 <div className="max-w-2xl w-full">
-                  <h2 className="text-4xl md:text-6xl font-bold tracking-tight">
-                    Projects
-                  </h2>
+                  <Parallax trigger="section" speed={0.3}>
+                    <h2 className="text-4xl md:text-6xl font-bold tracking-tight">
+                      Projects
+                    </h2>
+                  </Parallax>
                 </div>
               </div>
             )}
