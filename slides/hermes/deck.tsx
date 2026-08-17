@@ -4,6 +4,7 @@ import 'reveal.js/theme/dracula.css';
 import { Deck, Stack, Slide, Code, Markdown } from '@revealjs/react';
 import RevealHighlight from 'reveal.js/plugin/highlight';
 import RevealNotes from 'reveal.js/plugin/notes';
+import RevealMarkdown from 'reveal.js/plugin/markdown';
 import MarkdownInline from '@/components/slides/MarkdownInline';
 import logo from './media/logo.png';
 import hermesAgentLogo from './media/hermes-agent.png';
@@ -22,7 +23,7 @@ const config = {
   center: false,
 } as const;
 
-const plugins = [RevealHighlight, RevealNotes];
+const plugins = [RevealHighlight, RevealNotes, RevealMarkdown];
 
 export default function HermesDeck() {
   return (
@@ -79,9 +80,7 @@ export default function HermesDeck() {
       </Slide>
       <Slide>
         <h2>Architecture</h2>
-        {/* <div className="r-hstack"> */}
           <MarkdownInline src="/slides/hermes/arch.md" />
-        {/* </div> */}
       </Slide>
       <Slide>
         <h2>Hermes + Qwen</h2>
@@ -180,12 +179,43 @@ export default function HermesDeck() {
           `}
         </Code>
         <br/>
+        <Code language="bash">
+          {`
+            hermes gateway start
+          `}
+        </Code>
+        <br/>
+        <Code language="bash">
+          {`
+            hermes gateway stop
+          `}
+        </Code>
       </Slide>
       <Slide>
         <h2>Give your AI Agent&apos;s Soul.md</h2>
+        <p>Edit `~/.hermes/SOUL.md`</p>
+        <Markdown>
+          {`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`}
+        </Markdown>
+      </Slide>
+      <Slide>
+        <h3>Multi-Agents</h3>
+        <Markdown className="text-left" style={{ fontSize: '0.5em' }}>
+          {`
+          #### Orchestrator Agent
+          > Controls the workflow.
+          #### Research Agent
+          > "What has happened recently with local AI agents?"
+          #### Analysis Agent
+          > "How does this relate to what the user already knows?"
+          #### Synthesis Agent
+          > "What should the user actually know?"
+          `}
+        </Markdown>
       </Slide>
       <Slide>
         <h2>Multi-Agent Architecture</h2>
+        <MarkdownInline src="/slides/hermes/multi-arch.md" />
       </Slide>
       <Slide>
         <h2>Hermes Profiles</h2>

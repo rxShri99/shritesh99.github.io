@@ -13,12 +13,12 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Body copy = Bungee Hairline. Titles/subtitles override to Entanglement. */
-  --font-sans: var(--font-bungee-hairline);
+  /* Body copy = Ballega. Titles/subtitles override to Andromeda below. */
+  --font-sans: var(--font-ballega);
   --font-mono: var(--font-geist-mono);
   --font-geist: var(--font-geist-sans);
-  --font-entanglement: var(--font-entanglement);
-  --font-bungee-hairline: var(--font-bungee-hairline);
+  --font-andromeda: var(--font-andromeda);
+  --font-ballega: var(--font-ballega);
 }
 
 html,
@@ -31,9 +31,9 @@ body,
 body {
   background: var(--background);
   color: var(--foreground);
-  /* Regular text = Bungee Hairline, Geist as a legibility fallback. */
+  /* Regular text = Ballega, Geist as a legibility fallback. */
   font-family:
-    var(--font-bungee-hairline),
+    var(--font-ballega),
     var(--font-geist-sans),
     system-ui,
     -apple-system,
@@ -42,7 +42,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Titles & subtitles default to Entanglement. The `.reveal h*` selectors from
+/* Titles & subtitles default to Andromeda. The `.reveal h*` selectors from
    the reveal.js themes are more specific and still win inside decks. */
 h1,
 h2,
@@ -51,17 +51,17 @@ h4,
 h5,
 h6,
 .subtitle {
-  font-family: var(--font-entanglement), cursive;
+  font-family: var(--font-andromeda), sans-serif;
   font-weight: 400;
 }
 
-.entanglement-regular {
-  font-family: var(--font-entanglement), cursive;
+.andromeda-regular {
+  font-family: var(--font-andromeda), sans-serif;
   font-weight: 400;
   font-style: normal;
 }
-.bungee-hairline-regular {
-  font-family: var(--font-bungee-hairline), sans-serif;
+.ballega-regular {
+  font-family: var(--font-ballega), sans-serif;
   font-weight: 400;
   font-style: normal;
 }

@@ -15,18 +15,18 @@ const geistMono = Geist_Mono({
 });
 
 // Site's decorative display font — applied to headings via globals.css.
-const entanglement = localFont({
+const andromeda = localFont({
   src: '../../public/fonts/Andromeda-eR2n.ttf',
-  variable: '--font-entanglement',
+  variable: '--font-andromeda',
   weight: '400',
   display: 'swap',
 });
 
-// Available for regular use via the `font-bungee-hairline` utility or the
-// `.bungee-hairline-regular` class.
-const bungeeHairline = localFont({
+// Default body face, also available via the `font-ballega` utility or the
+// `.ballega-regular` class.
+const ballega = localFont({
   src: '../../public/fonts/Ballega-BL9EB.otf',
-  variable: '--font-bungee-hairline',
+  variable: '--font-ballega',
   weight: '400',
   display: 'swap',
 });
@@ -49,7 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${entanglement.variable} ${bungeeHairline.variable} antialiased bg-black text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} ${andromeda.variable} ${ballega.variable} antialiased bg-black text-white`}
       >
         <AppProvider>{children}</AppProvider>
       </body>
