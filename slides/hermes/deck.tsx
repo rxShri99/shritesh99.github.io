@@ -42,13 +42,22 @@ export default function HermesDeck() {
                 <li>AI Enthusiast</li>
               </ul>
             </p>
-            <div className="r-hstack justify-between items-start" style={{ fontSize: '0.5em', width: '70%' }}>
+            <div
+              className="r-hstack justify-between items-start"
+              style={{ fontSize: '0.5em', width: '70%' }}
+            >
               <div className="r-vstack">
                 <img src="/LinkedinQR.png" width={100} height={100}></img>
-                <p>Connect with me on <br /> LinkedIn</p>
+                <p>
+                  Connect with me on <br /> LinkedIn
+                </p>
               </div>
               <div className="r-vstack">
-                <img src="/slides/hermes/hermesQR.png" width={100} height={100}></img>
+                <img
+                  src="/slides/hermes/hermesQR.png"
+                  width={100}
+                  height={100}
+                ></img>
                 <p>Workshop Slides</p>
               </div>
             </div>
@@ -113,7 +122,7 @@ export default function HermesDeck() {
         </ul>
       </Slide>
       <Slide>
-      <h2>Hermes vs OpenClaw</h2>
+        <h2>Hermes vs OpenClaw</h2>
         <table style={{ fontSize: '0.5em' }}>
           <thead>
             <tr>
@@ -125,8 +134,16 @@ export default function HermesDeck() {
           <tbody>
             <tr>
               <td>Core</td>
-              <td>Built in Python by Nous Research. It prioritizes a self-reinforced learning loop where the agent creates and refines its own skills over time.</td>
-              <td>Built in TypeScript with a heavy focus on gateway connectivity. It supports over 50 messaging channels and thousands of community skills.</td>
+              <td>
+                Built in Python by Nous Research. It prioritizes a
+                self-reinforced learning loop where the agent creates and
+                refines its own skills over time.
+              </td>
+              <td>
+                Built in TypeScript with a heavy focus on gateway connectivity.
+                It supports over 50 messaging channels and thousands of
+                community skills.
+              </td>
             </tr>
             <tr>
               <td>Process model</td>
@@ -157,8 +174,8 @@ export default function HermesDeck() {
         </table>
         <p style={{ fontSize: '0.5em' }}>
           Same model, 300 events: Hermes recalled in <strong>113 ms</strong>,
-          OpenClaw in <strong>19.6 s</strong> — OpenClaw replays its full session
-          log into context, Hermes runs a local full-text query.
+          OpenClaw in <strong>19.6 s</strong> — OpenClaw replays its full
+          session log into context, Hermes runs a local full-text query.
         </p>
       </Slide>
       <Slide>
@@ -172,7 +189,9 @@ export default function HermesDeck() {
           style={{ fontSize: '0.7em' }}
         >
           <div className="r-vstack items-stretch" style={{ textAlign: 'left' }}>
-            <p>Hermes is model agnostic — Qwen earns the local slot because it:</p>
+            <p>
+              Hermes is model agnostic — Qwen earns the local slot because it:
+            </p>
             <ul>
               <li>ships native tool calling</li>
               <li>comes in sizes that fit a laptop</li>
@@ -207,8 +226,8 @@ export default function HermesDeck() {
           </table>
         </div>
         <p style={{ fontSize: '0.5em' }}>
-          Qwen&apos;s own docs recommend a <em>Hermes-style</em> tool-use format —
-          the one Nous Research&apos;s models gave their name to.
+          Qwen&apos;s own docs recommend a <em>Hermes-style</em> tool-use format
+          — the one Nous Research&apos;s models gave their name to.
         </p>
         <h4 style={{ textAlign: 'left' }}>References</h4>
         <ul className="r-vstack items-start" style={{ fontSize: '0.6em' }}>
@@ -244,6 +263,18 @@ export default function HermesDeck() {
           ></iframe>
         </div>
       </Slide>
+      <Slide>
+        <h2>Prerequsite</h2>
+        <div className="centre">
+          <br />
+          <ul>
+            <li>Docker</li>
+            <li>LM Studio / Ollama</li>
+            <li>Local Qwen model </li>
+            <li>Python 3.9</li>
+          </ul>
+        </div>
+      </Slide>
       <Stack>
         <Slide>
           <h2>Hermes Setup</h2>
@@ -255,7 +286,8 @@ export default function HermesDeck() {
           <Code language="bash">
             {`source ~/.bashrc   # or source ~/.zshrc`}
           </Code>
-          <br />
+          <p>Mac</p>
+          <Code language="bash">{`brew install hermes-agent`}</Code>
           <p>Windows (native) - Run in powershell:</p>
           <Code language="bash">
             {`iex (irm https://hermes-agent.nousresearch.com/install.ps1) `}
@@ -313,7 +345,7 @@ export default function HermesDeck() {
         <Code language="bash">
           {`
               hermes model       # choose your LLM provider and model
-            `}
+          `}
         </Code>
         <p>Or</p>
         <p>Edit `~/.hermes/config.yaml` and restart the gateway</p>
@@ -351,18 +383,14 @@ export default function HermesDeck() {
       </Slide>
       <Slide>
         <h2>Telegram Integration</h2>
-        <br/>
+        <br />
         <p>Launch @BotFather and create a new bot</p>
         <a href="https://t.me/BotFather">https://t.me/BotFather</a>
         <p>Type `/newbot` and follow the instructions</p>
         <p>Get the token and add it to the .env file</p>
-        <Code language="bash">
-          {`TELEGRAM_BOT_TOKEN=your_token`}
-        </Code>
+        <Code language="bash">{`TELEGRAM_BOT_TOKEN=your_token`}</Code>
         <p>Restart the gateway</p>
-        <Code language="bash">
-          {`hermes gateway restart`}
-        </Code>
+        <Code language="bash">{`hermes gateway restart`}</Code>
       </Slide>
       <Slide>
         <h3>Multi-Agents</h3>
@@ -381,6 +409,7 @@ export default function HermesDeck() {
       </Slide>
       <Slide>
         <h2>Multi-Agent Architecture</h2>
+        <h6>Personal Research Team ⭐</h6>
         <MarkdownInline src="/slides/hermes/multi-arch.md" />
       </Slide>
       <Slide>
@@ -444,65 +473,65 @@ export default function HermesDeck() {
         </div>
       </Slide>
       <Stack>
-      <Slide>
-        <h2>Mem0 Memory - MCP Server</h2>
-        <div className="items-start" style={{ fontSize: '0.8em', textAlign: 'left' }}>
-          <p>
-            Postgres + pgvector, Neo4j and the mem0 API
-          </p>
-          <p>Create a new directory:</p>
-          <Code language="bash">
-            {`mkdir mem0 && cd mem0`}
-          </Code>
-          <p>Download the files:</p>
-          <ul className="r-vstack items-start" style={{ fontSize: '0.8em' }}>
-            <li>
-              <a href="/slides/hermes/mem0/docker-compose.yml" download>
-                docker-compose.yml
-              </a>
-            </li>
-            <li>
-              <a href="/slides/hermes/mem0/init-db.sh" download>
-                init-db.sh
-              </a>
-            </li>
-          </ul>
-          <p>Start the container:</p>
-          <Code language="bash">
-            {`
+        <Slide>
+          <h2>Mem0 Memory - MCP Server</h2>
+          <div
+            className="items-start"
+            style={{ fontSize: '0.8em', textAlign: 'left' }}
+          >
+            <p>Postgres + pgvector, Neo4j and the mem0 API</p>
+            <p>Create a new directory:</p>
+            <Code language="bash">{`mkdir mem0 && cd mem0`}</Code>
+            <p>Download the files:</p>
+            <ul className="r-vstack items-start" style={{ fontSize: '0.8em' }}>
+              <li>
+                <a href="/slides/hermes/mem0/docker-compose.yml" download>
+                  docker-compose.yml
+                </a>
+              </li>
+              <li>
+                <a href="/slides/hermes/mem0/init-db.sh" download>
+                  init-db.sh
+                </a>
+              </li>
+            </ul>
+            <p>Start the container:</p>
+            <Code language="bash">
+              {`
               docker compose up -d
             `}
-          </Code>
-          <p>
-            The mem0 API lands on port 8888, which is the URL the MCP server uses.
-          </p>
-        </div>
-      </Slide>
-      <Slide>
-        <h2>Mem0 Memory - MCP Server Configuration</h2>
-        <p>LMStudio</p>
-        <Code language="yaml">
-          {`
+            </Code>
+            <p>
+              The mem0 API lands on port 8888, which is the URL the MCP server
+              uses.
+            </p>
+          </div>
+        </Slide>
+        <Slide>
+          <h2>Mem0 Memory - MCP Server Configuration</h2>
+          <p>LMStudio</p>
+          <Code language="yaml">
+            {`
                LMSTUDIO_BASE_URL: \${LMSTUDIO_BASE_URL:-http://host.docker.internal:1234/v1}
                LMSTUDIO_MODEL: \${LMSTUDIO_MODEL:-google/gemma-4-12b-qat}
                LMSTUDIO_EMBEDDING_MODEL: \${LMSTUDIO_EMBEDDING_MODEL:-text-embedding-nomic-embed-text-v2-moe}
                LMSTUDIO_EMBEDDING_ENCODING_FORMAT: \${LMSTUDIO_EMBEDDING_ENCODING_FORMAT:-float}
           `}
-        </Code>
-        <p>Ollama</p>
-        <Code language="yaml">
-          {`
+          </Code>
+          <p>Ollama</p>
+          <Code language="yaml">
+            {`
                OLLAMA_BASE_URL: \${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
                OLLAMA_MODEL: \${OLLAMA_MODEL:-google/gemma-4-12b-qat}
                OLLAMA_EMBEDDING_MODEL: \${OLLAMA_EMBEDDING_MODEL:-text-embedding-nomic-embed-text-v2-moe}
                OLLAMA_EMBEDDING_ENCODING_FORMAT: \${OLLAMA_EMBEDDING_ENCODING_FORMAT:-float}
           `}
-        </Code>
-      </Slide>
+          </Code>
+        </Slide>
       </Stack>
       <Slide>
         <h2>Mem0 Memory</h2>
-        <br/>
+        <br />
         <p>Edit `~/.hermes/config.yaml` and all the profiles</p>
         <Code language="yaml">
           {`
@@ -531,12 +560,12 @@ export default function HermesDeck() {
           <div style={{ fontSize: '0.8em', textAlign: 'left' }}>
             <ul>
               <li>
-                <strong>Morning research briefing</strong> — cron wakes the team,
-                you read the digest on Telegram
+                <strong>Morning research briefing</strong> — cron wakes the
+                team, you read the digest on Telegram
               </li>
               <li>
-                <strong>Second brain</strong> — drop links and notes in chat, ask
-                about them weeks later
+                <strong>Second brain</strong> — drop links and notes in chat,
+                ask about them weeks later
               </li>
               <li>
                 <strong>Private repo assistant</strong> — local model on local
