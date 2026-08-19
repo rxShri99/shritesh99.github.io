@@ -588,7 +588,7 @@ export default function HermesDeck() {
         <p>Ask the agent to set up the cron job</p>
         <ul className="text-left" style={{ fontSize: '0.7em', textAlign: 'left' }}>
           <li>
-            Every day at 9 AM, research the latest developments in local AI agents, focusing on self-hosted models, privacy, agent frameworks, and local inference. Compare today's findings with my previous research using your memory. Identify anything new or important, and prepare a concise research digest for me.
+            Every day at 9 AM, research the latest developments in local AI agents, focusing on self-hosted models, privacy, agent frameworks, and local inference. Compare today&apos;s findings with my previous research using your memory. Identify anything new or important, and prepare a concise research digest for me.
           </li>
           <li>
             Run my scheduled local AI research task now.
