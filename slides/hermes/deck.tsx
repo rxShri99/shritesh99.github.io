@@ -34,14 +34,12 @@ export default function HermesDeck() {
         <div className="r-hstack justify-between items-start">
           <div className="r-vstack " style={{ fontSize: '0.8em' }}>
             <h3>Shritesh Jamulkar</h3>
-            <p>
-              <ul>
-                <li>Software Engineer @Booking.com</li>
-                <li>Full Stack Developer</li>
-                <li>Big time Organizer</li>
-                <li>AI Enthusiast</li>
-              </ul>
-            </p>
+            <ul>
+              <li>Software Engineer @Booking.com</li>
+              <li>Full Stack Developer</li>
+              <li>Big time Organizer</li>
+              <li>AI Enthusiast</li>
+            </ul>
             <div
               className="r-hstack justify-between items-start"
               style={{ fontSize: '0.5em', width: '70%' }}
@@ -352,7 +350,7 @@ export default function HermesDeck() {
         <Code language="yaml">
           {`
           model:
-            default: google/gemma-4-12b-qat
+            default: qwen/qwen3.8-27b
             provider: lmstudio
             timeout: 120
             base_url: http://127.0.0.1:1234/v1
@@ -394,6 +392,7 @@ export default function HermesDeck() {
       </Slide>
       <Slide>
         <h3>Multi-Agents</h3>
+        <h6>Personal Research Team ⭐</h6>
         <Markdown className="text-left" style={{ fontSize: '0.5em' }}>
           {`
           #### Orchestrator Agent
@@ -414,23 +413,25 @@ export default function HermesDeck() {
       </Slide>
       <Slide>
         <h2>Hermes Profiles</h2>
-        <br />
         <p>Research Agent</p>
         <Code language="bash">
           {`
               hermes profile create researcher
+              researcher setup
             `}
         </Code>
         <p>Analysis Agent</p>
         <Code language="bash">
           {`
               hermes profile create analyst
+              analyst setup
             `}
         </Code>
         <p>Synthesis Agent</p>
         <Code language="bash">
           {`
               hermes profile create synthesizer
+              synthesizer setup
             `}
         </Code>
       </Slide>
@@ -550,6 +551,36 @@ export default function HermesDeck() {
         <Code>
           {`
              /reload_mcp 
+          `}
+        </Code>
+      </Slide>
+      <Slide>
+        <h2>See this in action</h2>
+        <p>Orchestrator Agent</p>
+        <Markdown className="text-left" style={{ fontSize: '0.7em', textAlign: 'left' }}>
+          {`
+            - I'm researching local AI agents. Remember that I'm particularly interested in privacy, self-hosted models, and running AI entirely on my own hardware.
+            - Research the current landscape of local AI agents. Focus on self-hosting, privacy, local model support, and agent frameworks. Compare the main approaches and tell me what I should explore next.
+            - Continue my research. What has changed since my last session, and what should I investigate next?
+          `}
+        </Markdown>
+      </Slide>
+      <Slide>
+        <h2>hermes cron</h2>
+        <p>Ask the agent to set up the cron job</p>
+        <ul className="text-left" style={{ fontSize: '0.7em', textAlign: 'left' }}>
+          <li>
+            Every day at 9 AM, research the latest developments in local AI agents, focusing on self-hosted models, privacy, agent frameworks, and local inference. Compare today's findings with my previous research using your memory. Identify anything new or important, and prepare a concise research digest for me.
+          </li>
+          <li>
+            Run my scheduled local AI research task now.
+          </li>
+        </ul>
+        <p>Or</p>
+        <p>Create a new cron job from the CLI</p>
+        <Code language="bash">
+          {`
+            hermes cron create "every 2h" "Research the latest developments in local AI agents. Focus on self-hosted models, privacy, local inference, and agent frameworks. Compare the findings with my previous research and tell me what I should investigate next."
           `}
         </Code>
       </Slide>
