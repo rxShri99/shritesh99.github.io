@@ -509,12 +509,30 @@ export default function HermesDeck() {
           </div>
         </Slide>
         <Slide>
+          <h2>Mem0 Memory - Caveats</h2>
+          <br/>
+          <p>You need to remove the memory tool from the hermes tools list in the config.yaml file.</p>
+          <Code language="yaml">
+            {`
+              platform_toolsets:
+                 cli:
+                  - hermes-cli
+                  - memory # remove this
+                telegram:
+                  - file
+                  - terminal
+                  - web
+                  - memory # remove this
+            `}
+          </Code>
+        </Slide>
+        <Slide>
           <h2>Mem0 Memory - MCP Server Configuration</h2>
           <p>LMStudio</p>
           <Code language="yaml">
             {`
                LMSTUDIO_BASE_URL: \${LMSTUDIO_BASE_URL:-http://host.docker.internal:1234/v1}
-               LMSTUDIO_MODEL: \${LMSTUDIO_MODEL:-google/gemma-4-12b-qat}
+               LMSTUDIO_MODEL: \${LMSTUDIO_MODEL:-qwen/qwen3.8-27b}
                LMSTUDIO_EMBEDDING_MODEL: \${LMSTUDIO_EMBEDDING_MODEL:-text-embedding-nomic-embed-text-v2-moe}
                LMSTUDIO_EMBEDDING_ENCODING_FORMAT: \${LMSTUDIO_EMBEDDING_ENCODING_FORMAT:-float}
           `}
@@ -523,7 +541,7 @@ export default function HermesDeck() {
           <Code language="yaml">
             {`
                OLLAMA_BASE_URL: \${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
-               OLLAMA_MODEL: \${OLLAMA_MODEL:-google/gemma-4-12b-qat}
+               OLLAMA_MODEL: \${OLLAMA_MODEL:-qwen/qwen3.8-27b}
                OLLAMA_EMBEDDING_MODEL: \${OLLAMA_EMBEDDING_MODEL:-text-embedding-nomic-embed-text-v2-moe}
                OLLAMA_EMBEDDING_ENCODING_FORMAT: \${OLLAMA_EMBEDDING_ENCODING_FORMAT:-float}
           `}
