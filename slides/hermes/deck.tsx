@@ -450,7 +450,7 @@ export default function HermesDeck() {
           <p>Research Agent - Edit `~/.hermes/profiles/researcher/SOUL.md`</p>
           <ul>
             <li>
-              <a href="/slides/hermes/Research-Agent-Soul.md">
+              <a href="/slides/hermes/Researcher-Agent-Soul.md">
                 Research Agent Soul.md
               </a>
             </li>
@@ -458,7 +458,7 @@ export default function HermesDeck() {
           <p>Analysis Agent - Edit `~/.hermes/profiles/analyst/SOUL.md`</p>
           <ul>
             <li>
-              <a href="/slides/hermes/Analysis-Agent-Soul.md">
+              <a href="/slides/hermes/Analyst-Agent-Soul.md">
                 Analysis Agent Soul.md
               </a>
             </li>
@@ -466,7 +466,7 @@ export default function HermesDeck() {
           <p>Synthesis Agent - Edit `~/.hermes/profiles/synthesizer/SOUL.md`</p>
           <ul>
             <li>
-              <a href="/slides/hermes/Synthesis-Agent-Soul.md">
+              <a href="/slides/hermes/Synthesizer-Agent-Soul.md">
                 Synthesis Agent Soul.md
               </a>
             </li>
