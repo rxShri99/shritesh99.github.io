@@ -1,6 +1,13 @@
 'use client';
 
-import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from 'react';
 import { usePrefersReducedMotion } from '@/hooks';
 import type { Handwriting } from '@/data/handwriting';
 
@@ -102,6 +109,11 @@ interface HandwrittenTextProps {
  * proportional to its length, so the pen keeps an even speed instead of
  * rushing the long strokes.
  *
+ * The "hello"-style realism comes from three layers: a gradient ink sheen, a
+ * soft glow + depth shadow around the strokes (light-writing floating in
+ * space), and a glowing pen tip that rides the current stroke's end while it
+ * writes.
+ *
  * Stays fully drawn until the browser has measured every stroke, so a failure
  * to measure (or no JS at all) leaves readable text rather than nothing.
  */
@@ -116,7 +128,13 @@ export default function HandwrittenText({
   play,
 }: HandwrittenTextProps) {
   const ref = useRef<SVGSVGElement>(null);
+  const tipRef = useRef<SVGGElement>(null);
+  const tipRafRef = useRef(0);
   const reduceMotion = usePrefersReducedMotion();
+  // Gradient/def ids must be unique per instance; useId's colons are not
+  // safe inside url(#...) references.
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
+  const tipGlowId = `tip-glow-${uid}`;
 
   // Per-device offsetY fit, applied on mount and viewport resizes. Starts
   // from the prop (SSR-safe) and settles on the fitted value on the next
@@ -138,6 +156,51 @@ export default function HandwrittenText({
     };
   }, []);
 
+  // Pen tip: a glowing nib that rides the tip of whichever stroke is being
+  // written. Runs its own rAF clock against the same timeline the CSS dash
+  // animations use, sampling getPointAtLength for the position.
+  const stopPen = useCallback(() => {
+    cancelAnimationFrame(tipRafRef.current);
+    if (tipRef.current) tipRef.current.style.opacity = '0';
+  }, []);
+
+  const runPen = useCallback(() => {
+    const el = ref.current;
+    const tip = tipRef.current;
+    if (!el || !tip) return;
+    cancelAnimationFrame(tipRafRef.current);
+
+    const paths = Array.from(
+      el.querySelectorAll<SVGPathElement>('path[data-stroke]')
+    );
+    const tl = buildTimeline(handwriting, durationMs);
+    if (!tl.length || !paths.length) return;
+    const total = tl[tl.length - 1].delay + tl[tl.length - 1].duration;
+    const start = performance.now();
+
+    const frame = (now: number) => {
+      const ms = now - start;
+      if (ms >= total) {
+        tip.style.opacity = '0';
+        return;
+      }
+      let i = tl.length - 1;
+      while (i > 0 && ms < tl[i].delay) i--;
+      const seg = tl[i];
+      const path = paths[i];
+      if (path && seg.duration > 0 && ms >= seg.delay) {
+        const prog = Math.min(1, (ms - seg.delay) / seg.duration);
+        const pt = path.getPointAtLength(path.getTotalLength() * prog);
+        tip.setAttribute('transform', `translate(${pt.x} ${pt.y})`);
+        tip.style.opacity = '1';
+      }
+      tipRafRef.current = requestAnimationFrame(frame);
+    };
+    tipRafRef.current = requestAnimationFrame(frame);
+  }, [handwriting, durationMs]);
+
+  useEffect(() => stopPen, [stopPen]);
+
   // Measure, hide, then write — all on the DOM node. The dash length has to be
   // each path's own length: `pathLength` would normalise that away, but it
   // rescales *every* distance on the element. Rendering starts at `ready` and
@@ -149,7 +212,9 @@ export default function HandwrittenText({
     const el = ref.current;
     if (!el || reduceMotion) return;
 
-    for (const path of el.querySelectorAll('path')) {
+    for (const path of el.querySelectorAll<SVGPathElement>(
+      'path[data-stroke]'
+    )) {
       path.style.setProperty('--stroke-length', `${path.getTotalLength()}`);
     }
     el.dataset.state = 'pending';
@@ -161,21 +226,28 @@ export default function HandwrittenText({
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
         el.dataset.state = 'writing';
+        runPen();
         observer.disconnect();
       },
       { threshold }
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [handwriting, reduceMotion, threshold, controlled]);
+  }, [handwriting, reduceMotion, threshold, controlled, runPen]);
 
   // Controlled mode: `pending` resets every stroke's dash, so each flip back
   // to true re-runs the CSS animations — the word writes itself again.
   useEffect(() => {
     const el = ref.current;
     if (!controlled || !el || reduceMotion) return;
-    el.dataset.state = play ? 'writing' : 'pending';
-  }, [play, controlled, reduceMotion]);
+    if (play) {
+      el.dataset.state = 'writing';
+      runPen();
+    } else {
+      el.dataset.state = 'pending';
+      stopPen();
+    }
+  }, [play, controlled, reduceMotion, runPen, stopPen]);
 
   const timeline = buildTimeline(handwriting, durationMs);
   // Pin the box from the viewBox rather than leaning on intrinsic SVG sizing,
@@ -194,22 +266,34 @@ export default function HandwrittenText({
         aspectRatio: `${boxWidth} / ${boxHeight}`,
         // Translate rather than margin: the word slides off its centred
         // position without dragging the socials below it along with it.
-        transform: fitOffsetY
-          ? `translateY(${scaled(fitOffsetY)})`
-          : undefined,
+        transform: fitOffsetY ? `translateY(${scaled(fitOffsetY)})` : undefined,
+        // The 3D "hello" look: solid white ink with the blue neon entirely
+        // in the outward glow — tight white bloom, two blue halos, and a
+        // deep drop shadow that floats the ink off the page.
+        filter:
+          'drop-shadow(0 0 4px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 14px rgba(99, 125, 255, 0.7)) drop-shadow(0 0 32px #00BEFF) drop-shadow(0 16px 30px rgba(0, 0, 0, 0.6))',
       }}
       viewBox={handwriting.viewBox}
       role="img"
       aria-label={handwriting.text}
       fill="none"
-      stroke="currentColor"
+      stroke="#ffffff"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
+      <defs>
+        <radialGradient id={tipGlowId}>
+          <stop offset="0" stopColor="rgba(255, 255, 255, 0.9)" />
+          <stop offset="0.35" stopColor="rgba(155, 177, 255, 0.4)" />
+          <stop offset="1" stopColor="rgba(125, 155, 255, 0)" />
+        </radialGradient>
+      </defs>
+
       {timeline.map((stroke, i) => (
         <path
           key={i}
+          data-stroke
           d={stroke.d}
           style={
             {
@@ -219,6 +303,12 @@ export default function HandwrittenText({
           }
         />
       ))}
+
+      {/* Pen tip: glowing nib riding the stroke being written */}
+      <g ref={tipRef} stroke="none" style={{ opacity: 0 }} aria-hidden>
+        <circle r={strokeWidth * 2.6} fill={`url(#${tipGlowId})`} />
+        <circle r={strokeWidth * 0.62} fill="#ffffff" />
+      </g>
     </svg>
   );
 }
