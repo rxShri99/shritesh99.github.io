@@ -80,7 +80,7 @@ export const PAGE_DEPTHS: ReadonlyArray<ARFit | ((ar: number) => number)> = [
   [-62, -68, -77, -88], // Community
   [-62, -68, -77, -88], // About
   [-62, -68, -77, -88], // Quote
-  (ar) => -58 - 19 * ar, // Contact
+  (ar) => -53 - 19 * ar, // Contact
 ];
 
 /**
@@ -96,7 +96,7 @@ export const PAGE_LIFTS: ReadonlyArray<ARFit | ((ar: number) => number)> = [
   [14.57, 8.57, 10.57, 6.57], // Community
   [15.71, 9.71, 9.71, 6.71], // About
   [11.86, 6.86, 5.86, 2.86], // Quote
-  (ar) => 15 - 7 * ar, // Contact
+  (ar) => 17 - 7 * ar, // Contact
 ];
 
 /** Quote-page small-ring Z offset (responsive override of PAGE_OFFSETS_S[6]). */
@@ -150,9 +150,10 @@ export const PAGE_ROTATIONS_L: [number, number, number][] = [
 ];
 
 /**
- * Cursor parallax (hero page only): rings drift away from the cursor, each by
- * a different amount so the drift reads as depth. Units are world-space; the
- * rings group is rotated -π/2 about X, so local x = screen x, local z = screen y.
+ * Cursor parallax (every page, hero strength): rings drift away from the
+ * cursor, each by a different amount so the drift reads as depth. Units are
+ * world-space; the rings group is rotated -π/2 about X, so local x = screen x,
+ * local z = screen y.
  */
 export const PARALLAX_STRENGTH = {
   ringS: 1,

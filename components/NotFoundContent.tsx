@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { Leva } from 'leva';
 import NotFoundScene from '@/components/three/NotFoundScene';
+import Cursor from '@/components/Cursor';
 import { useDevMode } from '@/hooks/useDevMode';
 import { sceneConfig } from '@/config';
 
@@ -66,6 +67,9 @@ export default function NotFoundContent() {
           Back to home
         </Link> */}
       </div>
+
+      {/* Rocket cursor — same Leva "Cursor" folder as the home page */}
+      <Cursor />
     </main>
   );
 }

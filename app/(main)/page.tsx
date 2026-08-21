@@ -69,10 +69,11 @@ export default function Home() {
         <AppLoader ready={sceneReady} />
         <WrapMenu wrapRef={wrapRef} />
 
-        {/* Custom cursor — exclusion + blur circle trailing the pointer.
-            Skipped in dev mode (hotkey) OR when NEXT_PUBLIC_APP_ENV=development
-            so the native cursor is available for Leva. */}
-        {!isDevMode && !sceneConfig.enableControls && <Cursor />}
+        {/* Custom cursor — rocket drifting after the pointer (or the
+            exclusion/blur circle). Always mounted so its enable/rocket
+            toggles live in the Leva "Cursor" folder; disable it there if
+            you need the native cursor while tuning. */}
+        <Cursor />
       </ScrollContextProvider>
     </ScrollProvider>
   );

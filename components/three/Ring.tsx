@@ -234,12 +234,10 @@ const Ring = ({ scrollProgress, entranceReady = true }: RingProps) => {
       },
     ];
 
-    // Cursor parallax, hero page only: fades out as the hero scrolls away
-    // (scrollProgress 0 → 1/(N-1)). Rings drift opposite the cursor; the
-    // position lerp below gives the drift its easing.
-    const parallaxFade = Math.max(0, 1 - progress * (NUM_PAGES - 1));
-    const parallaxX = -pointer.current.x * parallaxFade;
-    const parallaxY = pointer.current.y * parallaxFade;
+    // Cursor parallax, every page, at hero strength: rings drift opposite
+    // the cursor; the position lerp below gives the drift its easing.
+    const parallaxX = -pointer.current.x;
+    const parallaxY = pointer.current.y;
 
     // Snap to targets on first frame so rings don't lerp in from the origin
     const t = hasInitialized.current ? 0.1 : 1;

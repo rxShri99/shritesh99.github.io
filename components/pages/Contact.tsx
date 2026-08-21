@@ -1,6 +1,15 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { contact } from '@/data/portfolio';
 import { handwrittenHandle } from '@/data/handwriting';
 import HandwrittenText from '@/components/HandwrittenText';
+import { useScroll } from '@/context/ScrollContext';
+
+// The rings' pose target reaches its final Contact keyframe exactly when
+// scrollProgress hits 1; they then lerp into place over ~1s. Hold the pen
+// until they've settled.
+const RING_SETTLE_MS = 800;
 
 const iconPaths: Record<string, string> = {
   github:
@@ -11,14 +20,45 @@ const iconPaths: Record<string, string> = {
     'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z',
 };
 
+// The Contact section is fully off-screen once the scroll is back above the
+// Quote page (it only starts sliding in during page 6). Resetting there — not
+// the moment the rings leave their final pose — gives the trigger hysteresis:
+// small scrolls within/near the contact page never blank the word.
+const EXIT_PAGE = 6;
+
 export default function Contact() {
+  // Write the handle once the rings settle into their final position; keep
+  // it drawn through small scrolls, and only reset after fully exiting the
+  // section so the next arrival writes it again.
+  const { scrollProgress, currentPage } = useScroll();
+  const ringsAtFinal = scrollProgress >= 1;
+  const fullyExited = currentPage < EXIT_PAGE;
+  const [play, setPlay] = useState(false);
+
+  useEffect(() => {
+    if (!ringsAtFinal) return;
+    const timer = setTimeout(() => setPlay(true), RING_SETTLE_MS);
+    return () => clearTimeout(timer);
+  }, [ringsAtFinal]);
+
+  useEffect(() => {
+    if (!fullyExited) return;
+    // Async: effects must not set state synchronously.
+    const raf = requestAnimationFrame(() => setPlay(false));
+    return () => cancelAnimationFrame(raf);
+  }, [fullyExited]);
+
   return (
     <div className="relative min-h-screen flex flex-col items-center px-6">
-      {/* The handle holds the middle of the section, written on by hand when it
-          scrolls into view. */}
+      {/* The handle holds the middle of the section, written on by hand once
+          the rings settle into their final pose. */}
       <div className="flex-1 flex items-center justify-center">
         <h2 className="w-full">
-          <HandwrittenText handwriting={handwrittenHandle} durationMs={2400} />
+          <HandwrittenText
+            handwriting={handwrittenHandle}
+            durationMs={2400}
+            play={play}
+          />
         </h2>
       </div>
 
@@ -54,6 +94,9 @@ export default function Contact() {
         <p className="text-white/20 text-sm">
           &copy; {new Date().getFullYear()} Shritesh Jamulkar. All rights
           reserved.
+          <br />
+          <br />
+          Made with ❤️ from London, UK 🇬🇧
         </p>
       </div>
     </div>
