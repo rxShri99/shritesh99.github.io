@@ -238,6 +238,7 @@ export const quote = {
 };
 
 export const contact = {
+  handle: '@rxShri99',
   email: 'hello@shritesh.dev',
   links: [
     { label: 'GitHub', url: 'https://github.com/Shritesh99', icon: 'github' },

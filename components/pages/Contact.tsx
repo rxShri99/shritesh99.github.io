@@ -1,4 +1,6 @@
 import { contact } from '@/data/portfolio';
+import { handwrittenHandle } from '@/data/handwriting';
+import HandwrittenText from '@/components/HandwrittenText';
 
 const iconPaths: Record<string, string> = {
   github:
@@ -11,26 +13,18 @@ const iconPaths: Record<string, string> = {
 
 export default function Contact() {
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-6">
-      <div className="max-w-xl w-full text-center space-y-10">
-        {/* Heading */}
-        <div className="space-y-3">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Get in Touch
-          </h2>
-          <p className="text-white/50 text-lg">
-            Have a project in mind or just want to say hello?
-          </p>
-        </div>
+    <div className="relative min-h-screen flex flex-col items-center px-6">
+      {/* The handle holds the middle of the section, written on by hand when it
+          scrolls into view. */}
+      <div className="flex-1 flex items-center justify-center">
+        <h2 className="w-full">
+          <HandwrittenText handwriting={handwrittenHandle} durationMs={2400} />
+        </h2>
+      </div>
 
-        {/* Email */}
-        <a
-          href={`mailto:${contact.email}`}
-          className="inline-block text-xl md:text-2xl font-medium text-blue-400 hover:text-blue-300 transition-colors underline underline-offset-4"
-        >
-          {contact.email}
-        </a>
-
+      {/* Socials + footer ride the bottom edge — this is the last section, so
+          they land at the very bottom of the page. */}
+      <div className="w-full max-w-xl text-center space-y-8 pb-10">
         {/* Social Links */}
         <div className="flex items-center justify-center gap-6">
           {contact.links.map((link) => (
@@ -57,7 +51,7 @@ export default function Contact() {
         </div>
 
         {/* Footer */}
-        <p className="text-white/20 text-sm pt-8">
+        <p className="text-white/20 text-sm">
           &copy; {new Date().getFullYear()} Shritesh Jamulkar. All rights
           reserved.
         </p>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useFrame, useThree } from '@react-three/fiber';
-import { animated, to, useSprings } from '@react-spring/three';
+import { animated, to, useSpring, useSprings } from '@react-spring/three';
 import * as THREE from 'three';
 import { useEffect, useMemo, useRef } from 'react';
 import { PAGE_HEIGHTS_VH } from '@/constants';
@@ -82,6 +82,30 @@ const RING_CONFIGS = [
   },
 ];
 
+// Netflix-ident entrance. The beats that sell it: the rings CUT in oversized
+// (no ease-in — the eye must not see them arrive), slam down to size, punch a
+// hair past it, then go dead still. Staggering the three landings turns one
+// mushy pop into "ta-ta-DUM", and the glow spring flashes the shared material
+// as the largest ring lands.
+const TUDUM = {
+  /** Scale the rings cut in at, before the slam. */
+  start: 2.4,
+  /** Punched past the target so the stop reads as an impact, not a stop. */
+  punch: 0.94,
+  /** In-plane squash on impact — the squash half of squash-and-stretch. */
+  squash: 0.86,
+  /** Hard attack. */
+  slam: { mass: 1, tension: 700, friction: 30 },
+  /** Tight recovery: no floaty wobble after the hit. */
+  settle: { mass: 1, tension: 260, friction: 22 },
+  /** ms between landings, small ring first, large ring last. */
+  stagger: 70,
+  /** ms a slam takes to reach the target — used to time the flash. */
+  impact: 100,
+  /** Peak brightness multiplier on impact (additive blend). */
+  flash: 2.2,
+};
+
 const Ring = ({ scrollProgress, entranceReady = true }: RingProps) => {
   const meshRefs = useRef<(THREE.Mesh | null)[]>([null, null, null]);
   const spinPhases = useRef([0, 0, 0]);
@@ -90,21 +114,51 @@ const Ring = ({ scrollProgress, entranceReady = true }: RingProps) => {
   const { size } = useThree();
   const reduceMotion = usePrefersReducedMotion();
 
-  // Page-load entrance: all rings bloom from scale 0 to full size together.
-  // The Y axis uses the "heavy" spring preset (mass 3.5 / stiffness 20 /
-  // damping 26) for the jelly-like settle while X/Z bloom quickly. Scale is
-  // the only transform the frame loop doesn't drive, so the springs compose
-  // with the scroll poses.
+  // Page-load entrance. Scale is the only transform the frame loop doesn't
+  // drive, so these springs compose with the scroll poses. The chain re-asserts
+  // the oversized pose immediately on each run because `from` only applies at
+  // mount — without it the rings would grow out of 0 instead of slamming in.
   const [entranceSprings] = useSprings(
     RING_CONFIGS.length,
+    (i) => ({
+      from: { scale: TUDUM.start, scaleY: TUDUM.start },
+      // Holds at 0 until the page loader hands off, then slams.
+      to: entranceReady
+        ? async (next: (props: object) => Promise<void>) => {
+            await next({
+              scale: TUDUM.start,
+              scaleY: TUDUM.start,
+              immediate: true,
+            });
+            await next({
+              scale: TUDUM.punch,
+              scaleY: TUDUM.squash,
+              config: TUDUM.slam,
+            });
+            await next({ scale: 1, scaleY: 1, config: TUDUM.settle });
+          }
+        : { scale: 0, scaleY: 0, immediate: true },
+      delay: i * TUDUM.stagger,
+      immediate: reduceMotion,
+    }),
+    [reduceMotion, entranceReady]
+  );
+
+  // Impact flash, timed to the last ring landing. One spring for the whole
+  // trio: the flash should read as a single hit, not three.
+  const [{ glow }] = useSpring(
     () => ({
-      from: { scale: 0, scaleY: 0 },
-      // Holds at 0 until the page loader hands off, then blooms.
-      to: entranceReady ? { scale: 1, scaleY: 1 } : { scale: 0, scaleY: 0 },
-      config: (key) =>
-        key === 'scale'
-          ? { mass: 3.5, tension: 20, friction: 26 }
-          : { tension: 120, friction: 14 },
+      from: { glow: 1 },
+      to: entranceReady
+        ? async (next: (props: object) => Promise<void>) => {
+            await next({
+              glow: TUDUM.flash,
+              config: { tension: 900, friction: 18 },
+            });
+            await next({ glow: 1, config: { tension: 60, friction: 26 } });
+          }
+        : { glow: 1 },
+      delay: TUDUM.stagger * (RING_CONFIGS.length - 1) + TUDUM.impact,
       immediate: reduceMotion,
     }),
     [reduceMotion, entranceReady]
@@ -152,6 +206,10 @@ const Ring = ({ scrollProgress, entranceReady = true }: RingProps) => {
     const ar = size.width / size.height;
     const progress = scrollProgress;
 
+    // Additive blending means alpha above 1 reads as brightness, so the glow
+    // spring can flash the rings on impact without touching their colour.
+    const flashOpacity = RING_MATERIAL.baseOpacity * glow.get();
+
     // Mid-ring targets: depth per page, vertical = camera stop + lift.
     const midPageY = PAGE_DEPTHS.map((fit) => resolveFit(fit, ar));
     const midPageZ = CAMERA_STOPS.map(
@@ -191,6 +249,9 @@ const Ring = ({ scrollProgress, entranceReady = true }: RingProps) => {
       const mesh = meshRefs.current[i];
       if (!mesh) return;
 
+      (mesh.material as THREE.ShaderMaterial).uniforms.uBaseOpacity.value =
+        flashOpacity;
+
       mesh.position.x = THREE.MathUtils.lerp(
         mesh.position.x,
         midX + ringOffsets[i].x + parallaxX * config.parallax,
@@ -228,7 +289,7 @@ const Ring = ({ scrollProgress, entranceReady = true }: RingProps) => {
             meshRefs.current[i] = el;
           }}
           scale={to(
-            [entranceSprings[i].scale, entranceSprings[i].scale],
+            [entranceSprings[i].scale, entranceSprings[i].scaleY],
             (s, sy) =>
               [s * config.scale, sy * config.scale, s * config.scale] as [
                 number,

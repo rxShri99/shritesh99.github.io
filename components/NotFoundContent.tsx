@@ -54,7 +54,7 @@ export default function NotFoundContent() {
 
         <div className="space-y-3">
           <p className="text-xl md:text-2xl font-medium text-white/85">
-            You&rsquo;ve drifted off orbit.
+            You&rsquo;ve drifted off the orbit.
           </p>
         </div>
 

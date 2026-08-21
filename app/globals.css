@@ -66,6 +66,40 @@ h6,
   font-style: normal;
 }
 
+/* Handwritten reveal, Apple-ident style. The strokes in data/handwriting.ts
+   are centrelines, so hiding one with a full-length dash and animating the
+   offset to zero draws it in the direction it was written. HandwrittenText
+   measures each path and sets --stroke-length, plus its own delay and duration
+   so the strokes run in sequence. */
+.handwritten {
+  display: block;
+  /* height:auto lets the viewBox ratio set the height. Without it the SVG's
+     default height:100% resolves against an auto-height parent and collapses.
+     Width is set inline from the font size; max-width keeps it inside narrow
+     viewports, where aspect-ratio scales the height to match. */
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.handwritten[data-state='pending'] path,
+.handwritten[data-state='writing'] path {
+  stroke-dasharray: var(--stroke-length);
+  stroke-dashoffset: var(--stroke-length);
+}
+
+.handwritten[data-state='writing'] path {
+  animation: handwritten-draw var(--stroke-duration, 200ms) linear
+    var(--stroke-delay, 0ms) forwards;
+}
+
+@keyframes handwritten-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 /* Smooth scrolling and performance optimizations - scoped to scrollable content only */
 .scroll-content {
   perspective: 1000px;
