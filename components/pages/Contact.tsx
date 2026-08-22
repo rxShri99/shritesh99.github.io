@@ -26,12 +26,19 @@ const iconPaths: Record<string, string> = {
 // small scrolls within/near the contact page never blank the word.
 const EXIT_PAGE = 6;
 
+// scrollProgress hits exactly 1 only at the precise bottom scroll position,
+// but Lenis eases in asymptotically and can settle a sub-pixel short of the
+// last-page boundary — which would leave progress at ~0.9998 forever and the
+// trigger unfired. 0.999 ≈ within ~6px of the bottom; the rings' pose is
+// visually final there.
+const RINGS_FINAL_PROGRESS = 0.995;
+
 export default function Contact() {
   // Write the handle once the rings settle into their final position; keep
   // it drawn through small scrolls, and only reset after fully exiting the
   // section so the next arrival writes it again.
   const { scrollProgress, currentPage } = useScroll();
-  const ringsAtFinal = scrollProgress >= 1;
+  const ringsAtFinal = scrollProgress >= RINGS_FINAL_PROGRESS;
   const fullyExited = currentPage < EXIT_PAGE;
   const [play, setPlay] = useState(false);
 
