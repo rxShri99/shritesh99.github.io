@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { communityEvents, eventTypeLabels } from '@/data/portfolio';
 import { useScroll } from '@/context/ScrollContext';
 import { PAGE_HEIGHTS_VH } from '@/constants';
-import Parallax from '@/components/Parallax';
 
 const PAGE_INDEX = 4;
 // Sticky element (h-screen = 100vh) only pins for (sectionHeight - 100vh) of
@@ -77,18 +76,8 @@ export default function Community() {
       style={{ height: `${PAGE_HEIGHTS_VH[PAGE_INDEX]}vh` }}
       aria-label="Community"
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center py-20">
-        {/* Same heading position as the other pages: flex-centered max-w-2xl column */}
-        <div className="w-full flex justify-center px-6 mb-10 md:mb-14">
-          <div className="max-w-2xl w-full">
-            <Parallax trigger="section" speed={0.3}>
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tight">
-                Community
-              </h2>
-            </Parallax>
-          </div>
-        </div>
-
+      {/* No heading — the near-fullscreen cards are the whole page. */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center">
         <div className="relative w-full">
             <div
               ref={trackRef}
@@ -108,7 +97,7 @@ export default function Community() {
                 return (
                   <figure
                     key={event.title}
-                    className="relative shrink-0 w-[82vw] sm:w-[560px] md:w-[720px] aspect-video rounded-[28px] overflow-hidden border border-white/10"
+                    className="relative shrink-0 w-[90vw] md:w-[82vw] h-[72vh] md:h-[82vh] rounded-[28px] overflow-hidden border border-white/10"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img

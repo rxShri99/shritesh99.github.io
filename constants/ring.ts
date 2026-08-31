@@ -110,19 +110,19 @@ export const QUOTE_S_OFFSET_Z: ARFit = [6.3, 5.3, 6.3, 8.3];
 export const PAGE_X_POSITIONS = [0, 0, 0, 0, -10, 0, 0, 0];
 
 /** Per-page X offsets from mid ring for S and L rings (Skills fans them out) */
-export const PAGE_X_OFFSETS_S = [0, 0, 0, 0.5, 0, 0, 0, 0];
-export const PAGE_X_OFFSETS_L = [0, 0, 0.8, 1.5, 0, 0, 0, 0];
+export const PAGE_X_OFFSETS_S = [0, 0, 0.5, 0, 0, 0, 0, 0];
+export const PAGE_X_OFFSETS_L = [0, 0, 1.5, 0.8, 0, 0, 0, 0];
 
 /** Per-page vertical offsets from mid ring for S and L rings (0 = same height) */
-export const PAGE_OFFSETS_S = [-2.5, 0, 0, -1, 0, 0.5, 8.3, 2];
-export const PAGE_OFFSETS_L = [2.5, 0, 0.8, -1, 0, -1, 2, 4.0];
+export const PAGE_OFFSETS_S = [-2.5, 0, -1, 0, 0, 0.5, 8.3, 2];
+export const PAGE_OFFSETS_L = [2.5, 0, 0.1, 0.8, 0, -1, 2, 4.0];
 
 /** Per-page rotation angles [x, y, z] in radians for each ring */
 export const PAGE_ROTATIONS_S: [number, number, number][] = [
   [0, 0, 0], // Hero
   [-1, 0, 0], // Experience
-  [-0.4, -0.8, 0], // Projects
-  [0, -0.4, 0], // Skills
+  [0, -0.4, 0], // Projects
+  [-0.4, -0.8, 0], // Skills
   [-1.2, 0, 0], // Community
   [-0.2, 0.6, 0], // About
   [0.1, 0, 0], // Quote
@@ -131,8 +131,8 @@ export const PAGE_ROTATIONS_S: [number, number, number][] = [
 export const PAGE_ROTATIONS_M: [number, number, number][] = [
   [0, 0, 0], // Hero
   [0.2, 0, 0], // Experience
-  [1.9, 0, 0], // Projects
-  [1.1, 0, 0], // Skills
+  [1.1, 0, 0], // Projects
+  [1.9, 0, 0], // Skills
   [-1.2, 0, 0], // Community
   [0.1, -0.3, 0], // About
   [-0.1, 0, 0], // Quote
@@ -141,8 +141,8 @@ export const PAGE_ROTATIONS_M: [number, number, number][] = [
 export const PAGE_ROTATIONS_L: [number, number, number][] = [
   [0, 0, 0], // Hero
   [2, 0, 0], // Experience
-  [0.6, 0.6, 0], // Projects
-  [-0.6, -1, 0], // Skills
+  [-0.6, -1, 0], // Projects
+  [0.6, 0.6, 0], // Skills
   [-1.2, 0, 0], // Community
   [-0.1, -0.1, 0], // About
   [-0.1, 0, 0], // Quote

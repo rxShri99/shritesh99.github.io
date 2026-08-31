@@ -45,7 +45,7 @@ export const COLOR_THEME_RGB = {
  * every page still covers at most one transition.
  */
 export const PAGE_HEIGHTS_VH = [
-  100, 350, 460, 100, 250, 100, 100, 100,
+  100, 350, 100, 560, 250, 100, 100, 100,
 ] as const;
 
 /**

@@ -170,6 +170,29 @@ canvas {
   }
 }
 
+/* Exchange title (skills page): outgoing letters roll up and out while the
+   incoming word's letters roll in from below, staggered per letter. */
+@keyframes xtitle-in {
+  from {
+    transform: translateY(115%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes xtitle-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-115%);
+    opacity: 0;
+  }
+}
+
 /* Glowing cards (slides index). SlideCards.tsx feeds each card the pointer
    position in its own coordinate space via --glow-x/--glow-y, and a proximity
    falloff via --glow-opacity. The short opacity transition is what smooths the

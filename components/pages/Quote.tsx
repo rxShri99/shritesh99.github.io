@@ -18,6 +18,11 @@ export default function Quote() {
         </Parallax>
         <Parallax speed={0.25}>
           <blockquote className="text-2xl md:text-4xl font-medium tracking-tight leading-snug text-white/90 drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
+            {quote.tagline}
+          </blockquote>
+        </Parallax>
+        <Parallax speed={0.25}>
+          <blockquote className="andromeda-regular text-2xl md:text-4xl font-medium tracking-tight leading-snug text-white/90 drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
             {quote.text}
           </blockquote>
         </Parallax>
