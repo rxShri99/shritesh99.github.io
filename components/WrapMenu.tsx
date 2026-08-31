@@ -12,7 +12,7 @@ const LINKS = [
   { label: 'About', page: 5 },
   { label: 'Contact', page: 7 },
 ];
-const TAGLINE = 'Building immersive web experiences';
+const TAGLINE = 'log(😅) = 💧log(😄)';
 const ANIM_MS = 700;
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -190,7 +190,7 @@ export default function WrapMenu({
                 {Array.from({ length: 6 }).map((_, i) => (
                   <span
                     key={i}
-                    className="whitespace-nowrap px-8 text-2xl md:text-4xl font-semibold text-white/30 line-through"
+                    className="whitespace-nowrap px-8 text-2xl md:text-4xl font-semibold text-white/30"
                   >
                     {TAGLINE}
                   </span>

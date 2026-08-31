@@ -67,6 +67,41 @@ const SKILL_ICONS: Record<string, IconType> = {
   IPFS: SiIpfs,
 };
 
+// Each brand's canonical Simple-Icons hex, with monochrome-on-black brands
+// (Next.js, Three.js, Vercel, Ethereum) lifted to white so they don't vanish
+// against the dark chip. Generic Tabler glyphs stay white too — they aren't
+// brand marks.
+const SKILL_COLORS: Record<string, string> = {
+  React: '#61DAFB',
+  'Next.js': '#FFFFFF',
+  TypeScript: '#3178C6',
+  'Three.js': '#FFFFFF',
+  'Tailwind CSS': '#06B6D4',
+  'HTML / CSS': '#E34F26',
+  'Node.js': '#5FA04E',
+  Python: '#3776AB',
+  GraphQL: '#E10098',
+  PostgreSQL: '#4169E1',
+  MongoDB: '#47A248',
+  Docker: '#2496ED',
+  Kubernetes: '#326CE5',
+  'GitHub Actions': '#2088FF',
+  Linux: '#FCC624',
+  Git: '#F05032',
+  AWS: '#FF9900',
+  'Google Cloud': '#4285F4',
+  Cloudflare: '#F38020',
+  Vercel: '#FFFFFF',
+  Netlify: '#00C7B7',
+  Serverless: '#FD5750',
+  Solidity: '#AAB6BC',
+  Ethereum: '#FFFFFF',
+  Hardhat: '#F0D50C',
+  'Web3.js': '#F16822',
+  IPFS: '#65C2CB',
+};
+const FALLBACK_ICON_COLOR = 'rgba(255,255,255,0.9)';
+
 const ROW_ORDER = Object.keys(skillCategories) as Skill['category'][];
 // Chips per category are few, so each half repeats them until it is
 // comfortably wider than any viewport — the -50% loop then never shows a gap.
@@ -105,7 +140,11 @@ function MarqueeRow({
                     {Icon && (
                       <Icon
                         aria-hidden
-                        className="w-5 h-5 md:w-6 md:h-6 text-white/90 shrink-0"
+                        className="w-5 h-5 md:w-6 md:h-6 shrink-0"
+                        style={{
+                          color:
+                            SKILL_COLORS[skill.name] ?? FALLBACK_ICON_COLOR,
+                        }}
                       />
                     )}
                     {skill.name}
