@@ -47,6 +47,7 @@ function DeckLoading() {
 // slides/<slug>/ folder.
 const deckImports: Record<string, () => Promise<{ default: ComponentType }>> = {
   hermes: () => import('@/slides/hermes/deck'),
+  'pollen-mesh': () => import('@/slides/pollen-mesh/deck'),
 };
 
 interface DeckLoaderProps {
