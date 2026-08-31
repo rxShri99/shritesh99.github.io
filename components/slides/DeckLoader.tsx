@@ -46,7 +46,6 @@ function DeckLoading() {
 // module load and breaks RSC prerender). Add a new entry alongside each new
 // slides/<slug>/ folder.
 const deckImports: Record<string, () => Promise<{ default: ComponentType }>> = {
-  hello: () => import('@/slides/hello/deck'),
   hermes: () => import('@/slides/hermes/deck'),
 };
 

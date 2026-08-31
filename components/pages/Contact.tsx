@@ -10,6 +10,7 @@ import { useScroll } from '@/context/ScrollContext';
 // scrollProgress hits 1; they then lerp into place over ~1s. Hold the pen
 // until they've settled.
 const RING_SETTLE_MS = 800;
+import Parallax from '@/components/Parallax';
 
 const iconPaths: Record<string, string> = {
   github:
@@ -60,51 +61,52 @@ export default function Contact() {
       {/* The handle holds the middle of the section, written on by hand once
           the rings settle into their final pose. */}
       <div className="flex-1 flex items-center justify-center">
-        <h2 className="w-full">
-          <HandwrittenText
-            handwriting={handwrittenHandle}
-            durationMs={2400}
-            play={play}
-          />
-        </h2>
+        <Parallax speed={0.3} className="w-full">
+          <h2 className="w-full">
+            <HandwrittenText handwriting={handwrittenHandle} durationMs={2400} />
+          </h2>
+        </Parallax>
+
       </div>
 
       {/* Socials + footer ride the bottom edge — this is the last section, so
           they land at the very bottom of the page. */}
       <div className="w-full max-w-xl text-center space-y-8 pb-10">
-        {/* Social Links */}
-        <div className="flex items-center justify-center gap-6">
-          {contact.links.map((link) => (
-            <a
-              key={link.label}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex flex-col items-center gap-2"
-            >
-              <span className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-blue-400 group-hover:bg-blue-400/10 transition-all">
-                <svg
-                  className="w-5 h-5 fill-white/70 group-hover:fill-blue-400 transition-colors"
-                  viewBox="0 0 24 24"
-                >
-                  <path d={iconPaths[link.icon] ?? ''} />
-                </svg>
-              </span>
-              <span className="text-xs text-white/40 group-hover:text-white/70 transition-colors">
-                {link.label}
-              </span>
-            </a>
-          ))}
-        </div>
-
+        {/* Social Links — drifting far slower than the handle above, both to
+            read as further back and to keep the offset they rest at (the page
+            bottom cuts the sweep short down here) down to a few px. */}
+        <Parallax speed={0.12}>
+          <div className="flex items-center justify-center gap-6">
+            {contact.links.map((link) => (
+              <a
+                key={link.label}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col items-center gap-2"
+              >
+                <span className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-blue-400 group-hover:bg-blue-400/10 transition-all">
+                  <svg
+                    className="w-5 h-5 fill-white/70 group-hover:fill-blue-400 transition-colors"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d={iconPaths[link.icon] ?? ''} />
+                  </svg>
+                </span>
+                <span className="text-xs text-white/40 group-hover:text-white/70 transition-colors">
+                  {link.label}
+                </span>
+              </a>
+            ))}
+          </div>
+        </Parallax>
         {/* Footer */}
-        <p className="text-white/20 text-sm">
-          &copy; {new Date().getFullYear()} Shritesh Jamulkar. All rights
-          reserved.
-          <br />
-          <br />
-          Made with ❤️ from London, UK 🇬🇧
-        </p>
+        <Parallax speed={0.06}>
+          <p className="text-white/20 text-sm">
+            &copy; {new Date().getFullYear()} Shritesh Jamulkar. All rights
+            reserved.
+          </p>
+        </Parallax>
       </div>
     </div>
   );
