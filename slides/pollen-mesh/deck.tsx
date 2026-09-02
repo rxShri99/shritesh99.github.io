@@ -60,10 +60,6 @@ const slides: SlideDef[] = [
                 <li>Full-stack developer</li>
               </ul>
             </div>
-            <p className="mono credit">
-              Track 2 · Infrastructure. Runner-up, Collaborative Agent
-              Hackathon, Cambridge
-            </p>
           </div>
           <figure className="photo">
             <img
