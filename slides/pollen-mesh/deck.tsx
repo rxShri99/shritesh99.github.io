@@ -492,54 +492,54 @@ const slides: SlideDef[] = [
     ),
   },
 
-  // 12 — Switching to the live system
-  {
-    content: (
-      <>
-        <p className="eyebrow">Switching to the live system</p>
-        <h2>Five things to watch for.</h2>
-        <div className="pipe">
-          <div className="node sealed">
-            <span className="tag">1</span>
-            <b>An attack lands</b>
-            <small>
-              Real events written into two organisations&apos; own log files.
-            </small>
-          </div>
-          <div className="node sealed">
-            <span className="tag">2</span>
-            <b>Each reasons alone</b>
-            <small>
-              Watch what it throws away, not only what it keeps.
-            </small>
-          </div>
-          <div className="node">
-            <span className="tag">3</span>
-            <b>The same value, twice</b>
-            <small>Computed independently, never exchanged.</small>
-          </div>
-          <div className="node gate">
-            <span className="tag">4</span>
-            <b>Two gates</b>
-            <small>
-              A human approves the exact payload, then each org approves
-              acting.
-            </small>
-          </div>
-          <div className="node">
-            <span className="tag">5</span>
-            <b>A control that finds nothing</b>
-            <small>One org, no match. It declines to invent a link.</small>
-          </div>
-        </div>
-        <p className="wide">
-          Nothing on the screen is pre-staged: launching writes real events
-          into each organisation&apos;s own log file, and every agent has to
-          find it in its own telemetry.
-        </p>
-      </>
-    ),
-  },
+  // // 12 — Switching to the live system
+  // {
+  //   content: (
+  //     <>
+  //       <p className="eyebrow">Switching to the live system</p>
+  //       <h2>Five things to watch for.</h2>
+  //       <div className="pipe">
+  //         <div className="node sealed">
+  //           <span className="tag">1</span>
+  //           <b>An attack lands</b>
+  //           <small>
+  //             Real events written into two organisations&apos; own log files.
+  //           </small>
+  //         </div>
+  //         <div className="node sealed">
+  //           <span className="tag">2</span>
+  //           <b>Each reasons alone</b>
+  //           <small>
+  //             Watch what it throws away, not only what it keeps.
+  //           </small>
+  //         </div>
+  //         <div className="node">
+  //           <span className="tag">3</span>
+  //           <b>The same value, twice</b>
+  //           <small>Computed independently, never exchanged.</small>
+  //         </div>
+  //         <div className="node gate">
+  //           <span className="tag">4</span>
+  //           <b>Two gates</b>
+  //           <small>
+  //             A human approves the exact payload, then each org approves
+  //             acting.
+  //           </small>
+  //         </div>
+  //         <div className="node">
+  //           <span className="tag">5</span>
+  //           <b>A control that finds nothing</b>
+  //           <small>One org, no match. It declines to invent a link.</small>
+  //         </div>
+  //       </div>
+  //       <p className="wide">
+  //         Nothing on the screen is pre-staged: launching writes real events
+  //         into each organisation&apos;s own log file, and every agent has to
+  //         find it in its own telemetry.
+  //       </p>
+  //     </>
+  //   ),
+  // },
 
   // 13 — In summary
   {
