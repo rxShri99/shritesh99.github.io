@@ -1,0 +1,563 @@
+/* Pure-React port of Pitch Deck.html — no reveal.js. All rules are scoped
+   under .pm-deck so nothing leaks to other decks or to the site chrome. */
+
+.pm-deck {
+  --ground: #0b0e0c;
+  --surface: #121714;
+  --sunken: #171d1a;
+  --fg: #eef2ee;
+  --fg-muted: #98a29c;
+  --fg-subtle: #5f6a64;
+  --line: #232b27;
+  --line-strong: #333d38;
+  --local: #6fae84;
+  --local-wash: #15251b;
+  --hold: #e0973a;
+  --hold-wash: #2a2013;
+  --crossed: #d08072;
+  --crossed-wash: #2b1a17;
+  --sans: "Instrument Sans", "Geist", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", "Geist Mono", ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+
+  position: absolute;
+  inset: 0;
+  background: var(--ground);
+  color: var(--fg);
+  font-family: var(--sans);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.pm-deck * {
+  box-sizing: border-box;
+}
+
+/* faint grid, same texture as the product UI */
+.pm-deck::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 72px 72px;
+  opacity: 0.28;
+  -webkit-mask-image: radial-gradient(
+    ellipse 90% 70% at 50% 45%,
+    #000 30%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 90% 70% at 50% 45%,
+    #000 30%,
+    transparent 100%
+  );
+}
+
+/* ---------------- deck chrome ---------------- */
+.pm-deck .deck {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+.pm-deck .slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  padding: clamp(28px, 5vh, 64px) clamp(28px, 6vw, 96px);
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(14px, 2.2vh, 26px);
+}
+.pm-deck .slide.on {
+  display: flex;
+}
+.pm-deck .slide.on > * {
+  animation: pm-rise 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.pm-deck .slide.on > *:nth-child(2) {
+  animation-delay: 0.07s;
+}
+.pm-deck .slide.on > *:nth-child(3) {
+  animation-delay: 0.14s;
+}
+.pm-deck .slide.on > *:nth-child(4) {
+  animation-delay: 0.21s;
+}
+.pm-deck .slide.on > *:nth-child(5) {
+  animation-delay: 0.28s;
+}
+.pm-deck .slide.on > *:nth-child(6) {
+  animation-delay: 0.35s;
+}
+@keyframes pm-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.pm-deck .bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--local);
+  z-index: 20;
+  transition: width 0.45s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.pm-deck .hud {
+  position: absolute;
+  bottom: 18px;
+  right: 24px;
+  z-index: 20;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg-subtle);
+  letter-spacing: 0.06em;
+}
+.pm-deck .hud kbd {
+  font-family: var(--mono);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: var(--fg-muted);
+}
+.pm-deck .brandmark {
+  position: absolute;
+  bottom: 18px;
+  left: 28px;
+  z-index: 20;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--fg-subtle);
+  letter-spacing: 0.02em;
+}
+.pm-deck .dotmark {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+/* ---------------- typography ---------------- */
+.pm-deck .eyebrow {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.1vw, 12px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  max-width: none;
+}
+.pm-deck h1 {
+  margin: 0;
+  font-size: clamp(2.6rem, 7.2vw, 6rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+  text-wrap: balance;
+  color: var(--fg);
+}
+.pm-deck h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4.2vw, 3.2rem);
+  line-height: 1.06;
+  letter-spacing: -0.028em;
+  font-weight: 600;
+  text-wrap: balance;
+  color: var(--fg);
+}
+.pm-deck h3 {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.35vw, 1.1rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.pm-deck h4 {
+  margin: 0;
+  color: var(--fg);
+}
+.pm-deck p {
+  margin: 0;
+  font-size: clamp(1rem, 1.55vw, 1.32rem);
+  line-height: 1.5;
+  color: var(--fg-muted);
+  max-width: 34ch;
+}
+.pm-deck p.wide {
+  max-width: 52ch;
+}
+.pm-deck .big {
+  font-size: clamp(1.25rem, 2.3vw, 2rem);
+  line-height: 1.34;
+  color: var(--fg);
+  max-width: 26ch;
+  letter-spacing: -0.015em;
+}
+.pm-deck .kicker {
+  color: var(--fg);
+  font-weight: 500;
+}
+.pm-deck .mono {
+  font-family: var(--mono);
+}
+.pm-deck em.hl {
+  font-style: normal;
+  color: var(--local);
+}
+.pm-deck em.hold {
+  font-style: normal;
+  color: var(--hold);
+}
+.pm-deck em.cross {
+  font-style: normal;
+  color: var(--crossed);
+}
+.pm-deck a {
+  color: var(--local);
+  text-decoration: none;
+}
+
+/* ---------------- pieces ---------------- */
+.pm-deck .row {
+  display: flex;
+  gap: clamp(14px, 2vw, 26px);
+  flex-wrap: wrap;
+}
+.pm-deck .cols {
+  display: grid;
+  gap: clamp(14px, 2vw, 26px);
+}
+.pm-deck .c2 {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.pm-deck .c3 {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+.pm-deck .card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: clamp(16px, 1.8vw, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.pm-deck .card p {
+  font-size: clamp(0.86rem, 1.15vw, 1rem);
+  max-width: 38ch;
+}
+.pm-deck .card.local {
+  border-color: color-mix(in srgb, var(--local) 40%, transparent);
+  background: var(--local-wash);
+}
+.pm-deck .card.hold {
+  border-color: color-mix(in srgb, var(--hold) 42%, transparent);
+  background: var(--hold-wash);
+}
+.pm-deck .card.cross {
+  border-color: color-mix(in srgb, var(--crossed) 40%, transparent);
+  background: var(--crossed-wash);
+}
+.pm-deck .tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+}
+
+.pm-deck table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: clamp(0.8rem, 1.15vw, 1rem);
+}
+.pm-deck th,
+.pm-deck td {
+  text-align: left;
+  padding: clamp(9px, 1.3vh, 15px) 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.pm-deck thead th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  font-weight: 500;
+}
+.pm-deck tbody tr:last-child td {
+  border-bottom: 0;
+}
+.pm-deck td.who {
+  color: var(--fg);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.pm-deck td.gap {
+  color: var(--crossed);
+}
+
+.pm-deck pre {
+  margin: 0;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: clamp(16px, 2vw, 26px);
+  font-family: var(--mono);
+  font-size: clamp(0.78rem, 1.15vw, 1.02rem);
+  line-height: 1.72;
+  color: var(--fg);
+  overflow: auto;
+}
+.pm-deck .cm {
+  color: var(--fg-subtle);
+}
+.pm-deck .k {
+  color: var(--local);
+}
+.pm-deck .s {
+  color: var(--hold);
+}
+
+.pm-deck ul {
+  margin: 0;
+  padding-left: 1.15em;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pm-deck li {
+  font-size: clamp(0.88rem, 1.2vw, 1.05rem);
+  color: var(--fg-muted);
+  max-width: 46ch;
+}
+.pm-deck li::marker {
+  color: var(--fg-subtle);
+}
+.pm-deck li b {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.pm-deck .stat b {
+  display: block;
+  font-size: clamp(2.2rem, 5.5vw, 4.4rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+.pm-deck .stat span {
+  font-size: clamp(0.76rem, 1vw, 0.9rem);
+  color: var(--fg-muted);
+}
+
+/* about-us photo */
+.pm-deck .slide.center {
+  align-items: center;
+}
+.pm-deck h2.middle {
+  text-align: center;
+  width: 100%;
+}
+/* Columns sized to their content and centred as a pair. Given a fraction of
+   the row, the short bio column stretched and left a gulf between the text
+   and the photo on a wide display. */
+.pm-deck .aboutgrid {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: clamp(28px, 5vw, 88px);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-inline: auto;
+}
+.pm-deck .bios {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.6vh, 30px);
+}
+.pm-deck .bio h3 {
+  font-size: clamp(1.3rem, 2.7vw, 2.35rem);
+  color: var(--local);
+  letter-spacing: -0.02em;
+  margin-bottom: 7px;
+}
+.pm-deck .bio ul {
+  padding-left: 1.1em;
+  gap: 5px;
+}
+.pm-deck .bio li {
+  color: var(--fg);
+  font-size: clamp(1rem, 1.75vw, 1.55rem);
+}
+.pm-deck .bio li::marker {
+  color: var(--hold);
+}
+.pm-deck .at {
+  color: var(--fg-muted);
+}
+.pm-deck .credit {
+  font-size: clamp(0.75rem, 1.05vw, 1rem);
+  color: var(--fg-subtle);
+  max-width: 52ch;
+  line-height: 1.5;
+}
+/* The whole photo, never cropped: its own aspect ratio drives the box. */
+.pm-deck .photo {
+  margin: 0;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  background: var(--sunken);
+  height: min(70vh, 700px);
+  aspect-ratio: 901 / 1600;
+}
+.pm-deck .photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+@media (max-width: 820px) {
+  .pm-deck .aboutgrid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .pm-deck .photo {
+    height: 34vh;
+  }
+}
+
+/* pipeline */
+.pm-deck .pipe {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pm-deck .node {
+  flex: 1 1 130px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 13px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.pm-deck .node .tag {
+  font-size: 9.5px;
+}
+.pm-deck .node b {
+  font-size: clamp(0.8rem, 1.05vw, 0.95rem);
+  color: var(--fg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.pm-deck .node small {
+  font-size: clamp(0.7rem, 0.9vw, 0.82rem);
+  color: var(--fg-subtle);
+  line-height: 1.4;
+}
+.pm-deck .node.sealed {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--local) 50%, transparent);
+}
+.pm-deck .node.gate {
+  border-color: color-mix(in srgb, var(--hold) 48%, transparent);
+  background: var(--hold-wash);
+}
+.pm-deck .arrow {
+  align-self: center;
+  color: var(--fg-subtle);
+  font-family: var(--mono);
+  font-size: 15px;
+  flex: none;
+}
+.pm-deck .wire {
+  position: relative;
+  height: 2px;
+  background: var(--line-strong);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.pm-deck .wire::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -30%;
+  width: 30%;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--local),
+    transparent
+  );
+  animation: pm-flow 2.6s linear infinite;
+}
+@keyframes pm-flow {
+  to {
+    left: 110%;
+  }
+}
+
+.pm-deck .boundary {
+  border: 1px dashed color-mix(in srgb, var(--local) 45%, transparent);
+  border-radius: 14px;
+  padding: clamp(12px, 1.6vw, 18px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: color-mix(in srgb, var(--local-wash) 60%, transparent);
+}
+
+.pm-deck .hashbox {
+  font-family: var(--mono);
+  font-size: clamp(1.5rem, 5.5vw, 4rem);
+  letter-spacing: -0.02em;
+  color: var(--hold);
+  word-break: break-all;
+  line-height: 1.05;
+}
+.pm-deck .strike {
+  text-decoration: line-through;
+  text-decoration-color: var(--crossed);
+  text-decoration-thickness: 2px;
+  color: var(--fg-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-deck .slide.on > * {
+    animation: none;
+  }
+  .pm-deck .wire::after {
+    animation: none;
+    left: 0;
+    width: 100%;
+    opacity: 0.5;
+  }
+  .pm-deck .bar {
+    transition: none;
+  }
+}
