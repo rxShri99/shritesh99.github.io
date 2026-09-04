@@ -33,7 +33,9 @@ export default function Scene({
   onReady,
   entranceReady,
 }: SceneProps) {
-  const { cameraY, scrollProgress } = useScroll();
+  // Pull the ref, not the continuous values — useFrame inside Experience/Ring
+  // reads scrollRef.current every tick, so the Canvas doesn't reconcile.
+  const { scrollRef } = useScroll();
 
   return (
     <Canvas
@@ -47,8 +49,8 @@ export default function Scene({
       }}
     >
       <Suspense fallback={<Loader />}>
-        <Experience cameraY={cameraY} isDevMode={isDevMode}>
-          <Ring scrollProgress={scrollProgress} entranceReady={entranceReady} />
+        <Experience scrollRef={scrollRef} isDevMode={isDevMode}>
+          <Ring scrollRef={scrollRef} entranceReady={entranceReady} />
           <Particles />
         </Experience>
         <Preload all />

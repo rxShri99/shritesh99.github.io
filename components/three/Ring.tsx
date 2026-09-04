@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { useEffect, useMemo, useRef } from 'react';
 import { PAGE_HEIGHTS_VH } from '@/constants';
 import { usePrefersReducedMotion } from '@/hooks';
+import { useDevMode } from '@/hooks/useDevMode';
 import {
   type ARFit,
   PAGE_DEPTHS,
@@ -30,9 +31,11 @@ import {
 import { interpolateKeyframes as interpolate } from '@/lib/utils/three';
 import ringVertexShader from '@/lib/shaders/ring.vert.glsl';
 import ringFragmentShader from '@/lib/shaders/ring.frag.glsl';
+import type { ScrollSnapshot } from '@/context/ScrollContext';
 
 interface RingProps {
-  scrollProgress: number;
+  /** Read scrollRef.current.scrollProgress each frame. */
+  scrollRef: React.MutableRefObject<ScrollSnapshot>;
   /** Entrance springs wait for this (the page loader's hand-off). */
   entranceReady?: boolean;
 }
@@ -106,13 +109,14 @@ const TUDUM = {
   flash: 2.2,
 };
 
-const Ring = ({ scrollProgress, entranceReady = true }: RingProps) => {
+const Ring = ({ scrollRef, entranceReady = true }: RingProps) => {
   const meshRefs = useRef<(THREE.Mesh | null)[]>([null, null, null]);
   const spinPhases = useRef([0, 0, 0]);
   const hasInitialized = useRef(false);
   const pointer = useRef({ x: 0, y: 0 });
   const { size } = useThree();
   const reduceMotion = usePrefersReducedMotion();
+  const isDevMode = useDevMode();
 
   // Page-load entrance. Scale is the only transform the frame loop doesn't
   // drive, so these springs compose with the scroll poses. The chain re-asserts
@@ -202,42 +206,51 @@ const Ring = ({ scrollProgress, entranceReady = true }: RingProps) => {
     };
   }, [sharedRingGeometry]);
 
-  useFrame(() => {
+  // Aspect-ratio-derived tracks. These only change on resize, not per frame —
+  // keeping them out of useFrame drops ~10 allocations/tick under GC pressure.
+  const arTracks = useMemo(() => {
     const ar = size.width / size.height;
-    const progress = scrollProgress;
+    const midPageY = PAGE_DEPTHS.map((fit) => resolveFit(fit, ar));
+    const midPageZ = CAMERA_STOPS.map(
+      (cam, i) => cam + resolveFit(PAGE_LIFTS[i], ar)
+    );
+    const sZOffsets = [...PAGE_OFFSETS_S];
+    sZOffsets[6] = fitByAR(ar, QUOTE_S_OFFSET_Z);
+    return { midPageY, midPageZ, sZOffsets };
+  }, [size.width, size.height]);
+
+  // Reused mutable buffer for per-ring offsets — written in place each frame
+  // so useFrame doesn't allocate a fresh array-of-objects at 60Hz.
+  const ringOffsetsBuffer = useRef([
+    { x: 0, z: 0 },
+    { x: 0, z: 0 },
+    { x: 0, z: 0 },
+  ]).current;
+
+  useFrame(() => {
+    const progress = scrollRef.current.scrollProgress;
+    const { midPageY, midPageZ, sZOffsets } = arTracks;
 
     // Additive blending means alpha above 1 reads as brightness, so the glow
     // spring can flash the rings on impact without touching their colour.
     const flashOpacity = RING_MATERIAL.baseOpacity * glow.get();
 
-    // Mid-ring targets: depth per page, vertical = camera stop + lift.
-    const midPageY = PAGE_DEPTHS.map((fit) => resolveFit(fit, ar));
-    const midPageZ = CAMERA_STOPS.map(
-      (cam, i) => cam + resolveFit(PAGE_LIFTS[i], ar)
-    );
     const midX = interpolate(PAGE_X_POSITIONS, progress);
     const midY = interpolate(midPageY, progress);
     const midZ = interpolate(midPageZ, progress);
 
-    // S/L offsets from the mid ring (the quote-page S offset is responsive).
-    const sZOffsets = [...PAGE_OFFSETS_S];
-    sZOffsets[6] = fitByAR(ar, QUOTE_S_OFFSET_Z);
-    const ringOffsets = [
-      {
-        x: interpolate(PAGE_X_OFFSETS_S, progress),
-        z: interpolate(sZOffsets, progress),
-      },
-      { x: 0, z: 0 },
-      {
-        x: interpolate(PAGE_X_OFFSETS_L, progress),
-        z: interpolate(PAGE_OFFSETS_L, progress),
-      },
-    ];
+    // S/L offsets from the mid ring (M has none).
+    ringOffsetsBuffer[0].x = interpolate(PAGE_X_OFFSETS_S, progress);
+    ringOffsetsBuffer[0].z = interpolate(sZOffsets, progress);
+    ringOffsetsBuffer[2].x = interpolate(PAGE_X_OFFSETS_L, progress);
+    ringOffsetsBuffer[2].z = interpolate(PAGE_OFFSETS_L, progress);
+    const ringOffsets = ringOffsetsBuffer;
 
     // Cursor parallax, every page, at hero strength: rings drift opposite
-    // the cursor; the position lerp below gives the drift its easing.
-    const parallaxX = -pointer.current.x;
-    const parallaxY = pointer.current.y;
+    // the cursor; the position lerp below gives the drift its easing. Dev
+    // mode zeroes it so tuning gestures don't nudge the pose off-target.
+    const parallaxX = isDevMode ? 0 : -pointer.current.x;
+    const parallaxY = isDevMode ? 0 : pointer.current.y;
 
     // Snap to targets on first frame so rings don't lerp in from the origin
     const t = hasInitialized.current ? 0.1 : 1;

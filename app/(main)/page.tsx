@@ -70,10 +70,10 @@ export default function Home() {
         <WrapMenu wrapRef={wrapRef} />
 
         {/* Custom cursor — rocket drifting after the pointer (or the
-            exclusion/blur circle). Always mounted so its enable/rocket
-            toggles live in the Leva "Cursor" folder; disable it there if
-            you need the native cursor while tuning. */}
-        <Cursor />
+            exclusion/blur circle). Toggles live in the Leva "Cursor" folder,
+            but dev mode force-reverts to the native cursor so tuning gestures
+            aren't chased by the comet trail. */}
+        {!isDevMode && <Cursor />}
       </ScrollContextProvider>
     </ScrollProvider>
   );

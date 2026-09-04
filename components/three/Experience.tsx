@@ -12,11 +12,13 @@ import { sceneConfig } from '@/config';
 import { PAGE_HEIGHTS_VH } from '@/constants';
 import { ReactNode, useRef, useEffect } from 'react';
 import * as THREE from 'three';
+import type { ScrollSnapshot } from '@/context/ScrollContext';
 
 interface ExperienceProps {
   children?: ReactNode;
   isDevMode?: boolean;
-  cameraY: number;
+  /** Read scrollRef.current.cameraY each frame — no per-tick React props. */
+  scrollRef: React.MutableRefObject<ScrollSnapshot>;
 }
 
 function SceneSetup() {
@@ -50,7 +52,7 @@ function scrollToPage(pageIndex: number) {
 export default function Experience({
   children,
   isDevMode,
-  cameraY,
+  scrollRef,
 }: ExperienceProps) {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
 
@@ -74,7 +76,7 @@ export default function Experience({
   });
 
   useFrame((state) => {
-    const targetY = cameraY;
+    const targetY = scrollRef.current.cameraY;
     const currentY = state.camera.position.y;
     const lerpFactor = 0.1;
     const newY = THREE.MathUtils.lerp(currentY, targetY, lerpFactor);
@@ -94,7 +96,7 @@ export default function Experience({
         fov={CAMERA.fov}
         near={sceneConfig.CAMERA_NEAR}
         far={sceneConfig.CAMERA_FAR}
-        position={[0, cameraY, 107.23]}
+        position={[0, 200, 107.23]}
         up={[0, 1, 0]}
       />
 
@@ -105,12 +107,6 @@ export default function Experience({
       {(isDevMode || sceneConfig.enableControls) && (
         <>
           <StatsGl trackGPU className="stats-gl" />
-          <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
-            <GizmoViewport
-              axisColors={['red', 'green', 'blue']}
-              labelColor="white"
-            />
-          </GizmoHelper>
         </>
       )}
       {/* Scene Content */}

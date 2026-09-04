@@ -3,9 +3,6 @@
 import { useEffect, useRef } from 'react';
 import { useControls } from 'leva';
 
-const CIRCLE_SIZE = 50;
-const CIRCLE_LERP = 0.18;
-
 // Comet: a bright head hugging the pointer, dropping a tail of tiny glowing
 // dust along its path — dense at the head, dispersing and fading with age.
 const COMET_LERP = 0.35;
@@ -27,32 +24,26 @@ interface CometParticle {
 }
 
 /**
- * Custom cursor. Modes toggled from the Leva "Cursor" folder:
- * - comet (default): a glowing head that trails comet dust — tiny
- *   twinkling particles dropped along the pointer's path that scatter
- *   and fade like a shooting star.
- * - circle (`comet` off): the normal exclusion/blur circle.
- * Only activates for fine pointers; the native cursor is hidden via the
- * `custom-cursor` body class while active.
+ * Custom cursor: a glowing head that trails comet dust — tiny twinkling
+ * particles dropped along the pointer's path that scatter and fade like a
+ * shooting star. Toggle via the Leva "Cursor" folder's `enabled`. Fine
+ * pointers only; the native cursor is hidden via the `custom-cursor` body
+ * class while active.
  */
 export default function Cursor() {
-  const circleRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const { enabled, comet } = useControls('Cursor', {
+  const { enabled } = useControls('Cursor', {
     enabled: { value: true },
-    comet: { value: true },
   });
 
   useEffect(() => {
     if (!enabled) return;
     if (!window.matchMedia('(pointer: fine)').matches) return;
-    const circleNode = comet ? null : circleRef.current;
-    const canvas = comet ? canvasRef.current : null;
+    const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d') ?? null;
-    if (comet ? !ctx : !circleNode) return;
+    if (!canvas || !ctx) return;
 
-    const lerp = comet ? COMET_LERP : CIRCLE_LERP;
     const target = { x: -100, y: -100 };
     const pos = { x: -100, y: -100 };
     let raf = 0;
@@ -60,13 +51,12 @@ export default function Cursor() {
 
     let dpr = 1;
     const resize = () => {
-      if (!canvas) return;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
     };
     resize();
-    if (canvas) window.addEventListener('resize', resize);
+    window.addEventListener('resize', resize);
     const particles: CometParticle[] = [];
     let last = performance.now();
 
@@ -78,12 +68,10 @@ export default function Cursor() {
         seen = true;
         pos.x = target.x;
         pos.y = target.y;
-        if (circleNode) circleNode.style.opacity = '1';
       }
     };
     const onLeave = () => {
       seen = false;
-      if (circleNode) circleNode.style.opacity = '0';
     };
 
     const tick = (now: number) => {
@@ -92,16 +80,8 @@ export default function Cursor() {
       last = now;
       const prevX = pos.x;
       const prevY = pos.y;
-      pos.x += (target.x - pos.x) * lerp;
-      pos.y += (target.y - pos.y) * lerp;
-
-      if (!comet) {
-        circleNode!.style.transform = `translate3d(${
-          pos.x - CIRCLE_SIZE / 2
-        }px, ${pos.y - CIRCLE_SIZE / 2}px, 0)`;
-        raf = requestAnimationFrame(tick);
-        return;
-      }
+      pos.x += (target.x - pos.x) * COMET_LERP;
+      pos.y += (target.y - pos.y) * COMET_LERP;
 
       // Emit dust along the path segment covered this frame, so fast sweeps
       // leave a continuous tail. A trickle keeps the head shimmering at rest.
@@ -131,11 +111,10 @@ export default function Cursor() {
         }
       }
 
-      const c = ctx!;
-      c.clearRect(0, 0, canvas!.width, canvas!.height);
-      c.save();
-      c.scale(dpr, dpr);
-      c.globalCompositeOperation = 'lighter';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.globalCompositeOperation = 'lighter';
 
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
@@ -153,18 +132,18 @@ export default function Cursor() {
 
         const f = 1 - p.age / p.ttl;
         const sparkle = 0.7 + 0.3 * Math.sin(t * p.twinkle + p.phase);
-        c.globalAlpha = f * f * sparkle;
-        c.fillStyle = p.color;
-        c.beginPath();
-        c.arc(p.x, p.y, p.r * (0.5 + 0.5 * f), 0, Math.PI * 2);
-        c.fill();
+        ctx.globalAlpha = f * f * sparkle;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * (0.5 + 0.5 * f), 0, Math.PI * 2);
+        ctx.fill();
       }
 
       // Comet head: soft blue glow around a white-hot core, gently pulsing.
       if (seen) {
         const pulse = 1 + Math.sin(t * 3) * 0.08;
-        c.globalAlpha = 1;
-        const glow = c.createRadialGradient(
+        ctx.globalAlpha = 1;
+        const glow = ctx.createRadialGradient(
           pos.x,
           pos.y,
           0,
@@ -175,21 +154,28 @@ export default function Cursor() {
         glow.addColorStop(0, 'rgba(155, 177, 255, 0.5)');
         glow.addColorStop(0.5, 'rgba(125, 155, 255, 0.18)');
         glow.addColorStop(1, 'rgba(125, 155, 255, 0)');
-        c.fillStyle = glow;
-        c.beginPath();
-        c.arc(pos.x, pos.y, 16 * pulse, 0, Math.PI * 2);
-        c.fill();
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 16 * pulse, 0, Math.PI * 2);
+        ctx.fill();
 
-        const core = c.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, 4);
+        const core = ctx.createRadialGradient(
+          pos.x,
+          pos.y,
+          0,
+          pos.x,
+          pos.y,
+          4
+        );
         core.addColorStop(0, 'rgba(255, 255, 255, 1)');
         core.addColorStop(0.6, 'rgba(255, 255, 255, 0.8)');
         core.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        c.fillStyle = core;
-        c.beginPath();
-        c.arc(pos.x, pos.y, 4, 0, Math.PI * 2);
-        c.fill();
+        ctx.fillStyle = core;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 4, 0, Math.PI * 2);
+        ctx.fill();
       }
-      c.restore();
+      ctx.restore();
 
       raf = requestAnimationFrame(tick);
     };
@@ -203,23 +189,12 @@ export default function Cursor() {
       cancelAnimationFrame(raf);
       window.removeEventListener('pointermove', onMove);
       document.documentElement.removeEventListener('pointerleave', onLeave);
-      if (canvas) window.removeEventListener('resize', resize);
+      window.removeEventListener('resize', resize);
       document.body.classList.remove('custom-cursor');
     };
-  }, [enabled, comet]);
+  }, [enabled]);
 
   if (!enabled) return null;
-
-  if (!comet) {
-    return (
-      <div
-        ref={circleRef}
-        aria-hidden
-        className="fixed top-0 left-0 z-[99999] pointer-events-none rounded-full bg-white mix-blend-exclusion backdrop-blur-[6px] blur-[20px] opacity-0 transition-opacity duration-200"
-        style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
-      />
-    );
-  }
 
   return (
     <canvas

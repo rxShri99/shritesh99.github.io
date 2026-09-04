@@ -34,7 +34,7 @@ export const RING_MATERIAL = {
   baseOpacity: 1.0,
   fresnelColor: '#4361EE',
   baseColor1: '#4361EE',
-  baseColor2: '#fff',
+  baseColor2: '#F5F5F5',
   fresnelPower: 3.5,
   fresnelStrength: 5.0,
   fresnelBias: 0.0,
@@ -74,11 +74,11 @@ export function fitByAR(ar: number, values: ARFit): number {
  */
 export const PAGE_DEPTHS: ReadonlyArray<ARFit | ((ar: number) => number)> = [
   [-62, -68, -77, -88], // Hero
-  [-62, -68, -77, -86], // Experience
+  [-68, -62, -77, -86], // Experience
   [-62, -68, -77, -88], // Projects
   (ar) => Math.max(-85, -62 - 33 * ar), // Skills
   [-62, -68, -77, -88], // Community
-  [-62, -68, -77, -88], // About
+  [-68, -62, -77, -86], // About
   [-62, -68, -77, -88], // Quote
   (ar) => -53 - 19 * ar, // Contact
 ];
@@ -90,11 +90,11 @@ export const PAGE_DEPTHS: ReadonlyArray<ARFit | ((ar: number) => number)> = [
  */
 export const PAGE_LIFTS: ReadonlyArray<ARFit | ((ar: number) => number)> = [
   [15, 13, 13, 6], // Hero
-  [15.14, 15.14, 10.14, 7.14], // Experience
+  [12, 20, 9, 6.5], // Experience
   [15.29, 14.29, 11.29, 6.29], // Projects
   (ar) => Math.max(9, 18 - 13 * ar), // Skills
   [14.57, 8.57, 10.57, 6.57], // Community
-  [15.71, 9.71, 9.71, 6.71], // About
+  [12, 20, 9, 6.5], // About
   [11.86, 6.86, 5.86, 2.86], // Quote
   (ar) => 17 - 7 * ar, // Contact
 ];
@@ -114,37 +114,37 @@ export const PAGE_X_OFFSETS_S = [0, 0, 0.5, 0, 0, 0, 0, 0];
 export const PAGE_X_OFFSETS_L = [0, 0, 1.5, 0.8, 0, 0, 0, 0];
 
 /** Per-page vertical offsets from mid ring for S and L rings (0 = same height) */
-export const PAGE_OFFSETS_S = [-2.5, 0, -1, 0, 0, 0.5, 8.3, 2];
-export const PAGE_OFFSETS_L = [2.5, 0, 0.1, 0.8, 0, -1, 2, 4.0];
+export const PAGE_OFFSETS_S = [-2.5, -5, -1, 0, 0, -5, 8.3, 2];
+export const PAGE_OFFSETS_L = [2.5, 8.6, 0.1, 0.8, 0, 8.6, 2, 4.0];
 
 /** Per-page rotation angles [x, y, z] in radians for each ring */
 export const PAGE_ROTATIONS_S: [number, number, number][] = [
   [0, 0, 0], // Hero
-  [-1, 0, 0], // Experience
+  [0.42, 0.4, 0], // Experience
   [0, -0.4, 0], // Projects
   [-0.4, -0.8, 0], // Skills
   [-1.2, 0, 0], // Community
-  [-0.2, 0.6, 0], // About
+  [0.42, 0.4, 0], // About
   [0.1, 0, 0], // Quote
   [0, 0, 0], // Contact
 ];
 export const PAGE_ROTATIONS_M: [number, number, number][] = [
   [0, 0, 0], // Hero
-  [0.2, 0, 0], // Experience
+  [0.48, -0.4, 0], // Experience
   [1.1, 0, 0], // Projects
   [1.9, 0, 0], // Skills
   [-1.2, 0, 0], // Community
-  [0.1, -0.3, 0], // About
+  [0.48, -0.4, 0], // About
   [-0.1, 0, 0], // Quote
   [0, 0, 0], // Contact
 ];
 export const PAGE_ROTATIONS_L: [number, number, number][] = [
   [0, 0, 0], // Hero
-  [2, 0, 0], // Experience
+  [0.8, 0.4, 0], // Experience
   [-0.6, -1, 0], // Projects
   [0.6, 0.6, 0], // Skills
   [-1.2, 0, 0], // Community
-  [-0.1, -0.1, 0], // About
+  [0.8, 0.4, 0], // About
   [-0.1, 0, 0], // Quote
   [0, 0, 0], // Contact
 ];

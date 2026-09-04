@@ -23,8 +23,9 @@ const PARALLAX_FACTOR = 0.12;
 const EDGE_MARGIN = 24;
 
 export default function Community() {
-  const { currentPage, pageProgress } = useScroll();
+  const { scrollRef, subscribe } = useScroll();
   const trackRef = useRef<HTMLDivElement>(null);
+  const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
   const [sidePad, setSidePad] = useState(0);
   const [maxTranslate, setMaxTranslate] = useState(0);
   const [panelStep, setPanelStep] = useState(0); // panel width + gap
@@ -61,14 +62,36 @@ export default function Community() {
     return () => window.removeEventListener('resize', measure);
   }, []);
 
-  // 0 → 1 across the pinned portion of this page's scroll.
-  const local =
-    currentPage < PAGE_INDEX
-      ? 0
-      : currentPage > PAGE_INDEX
-        ? 1
-        : Math.min(1, pageProgress / SCRUB_END);
-  const translateX = -local * maxTranslate;
+  // Per-tick scroll → track + inner-image transforms, written straight to the
+  // DOM so the panel list doesn't re-render 60 times/second.
+  useEffect(() => {
+    return subscribe((snap) => {
+      const track = trackRef.current;
+      if (!track) return;
+
+      // 0 → 1 across the pinned portion of this page's scroll.
+      const local =
+        snap.currentPage < PAGE_INDEX
+          ? 0
+          : snap.currentPage > PAGE_INDEX
+            ? 1
+            : Math.min(1, snap.pageProgress / SCRUB_END);
+      const translateX = -local * maxTranslate;
+
+      track.style.transform = `translate3d(${translateX}px, 0, 0)`;
+
+      if (!vw) return;
+      const halfVw = vw / 2;
+      for (let i = 0; i < imgRefs.current.length; i++) {
+        const img = imgRefs.current[i];
+        if (!img) continue;
+        const centerX = sidePad + i * panelStep + panelWidth / 2 + translateX;
+        const shift = (centerX - halfVw) * -PARALLAX_FACTOR;
+        img.style.transform = `translateX(calc(-50% + ${shift}px))`;
+      }
+    });
+    // scrollRef is stable; measurements above are the actual deps.
+  }, [subscribe, maxTranslate, sidePad, panelStep, panelWidth, vw, scrollRef]);
 
   return (
     <section
@@ -85,48 +108,39 @@ export default function Community() {
               style={{
                 paddingLeft: sidePad,
                 paddingRight: EDGE_MARGIN,
-                transform: `translate3d(${translateX}px, 0, 0)`,
-                transition: 'transform 0.15s linear',
               }}
             >
-              {communityEvents.map((event, i) => {
-                // Panel centre in viewport coords → inner-image parallax shift.
-                const centerX =
-                  sidePad + i * panelStep + panelWidth / 2 + translateX;
-                const shift = vw ? (centerX - vw / 2) * -PARALLAX_FACTOR : 0;
-                return (
-                  <figure
-                    key={event.title}
-                    className="relative shrink-0 w-[90vw] md:w-[82vw] h-[72vh] md:h-[82vh] rounded-[28px] overflow-hidden border border-white/10"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      className="absolute inset-y-0 left-1/2 h-full w-[130%] max-w-none object-cover"
-                      style={{
-                        transform: `translateX(calc(-50% + ${shift}px))`,
-                        transition: 'transform 0.15s linear',
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-black/35" />
-                    <figcaption className="absolute inset-0 flex items-center justify-center px-6">
-                      <span className="text-3xl sm:text-4xl md:text-5xl font-bold italic tracking-tight text-white text-center drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
-                        {event.title}
-                      </span>
-                    </figcaption>
-                    <div className="absolute bottom-0 inset-x-0 p-5 md:p-6 flex items-center justify-between gap-3">
-                      <span className="text-[11px] uppercase tracking-widest px-2.5 py-1 rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-white/85">
-                        {eventTypeLabels[event.type]}
-                      </span>
-                      <span className="text-xs text-white/70">
-                        {event.date}
-                        {event.location ? ` · ${event.location}` : ''}
-                      </span>
-                    </div>
-                  </figure>
-                );
-              })}
+              {communityEvents.map((event, i) => (
+                <figure
+                  key={event.title}
+                  className="relative shrink-0 w-[90vw] md:w-[82vw] h-[72vh] md:h-[82vh] rounded-[28px] overflow-hidden border border-white/10"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    ref={(el) => {
+                      imgRefs.current[i] = el;
+                    }}
+                    src={event.image}
+                    alt={event.title}
+                    className="absolute inset-y-0 left-1/2 h-full w-[130%] max-w-none object-cover will-change-transform"
+                  />
+                  <div className="absolute inset-0 bg-black/35" />
+                  <figcaption className="absolute inset-0 flex items-center justify-center px-6">
+                    <span className="text-3xl sm:text-4xl md:text-5xl font-bold italic tracking-tight text-white text-center drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
+                      {event.title}
+                    </span>
+                  </figcaption>
+                  <div className="absolute bottom-0 inset-x-0 p-5 md:p-6 flex items-center justify-between gap-3">
+                    <span className="text-[11px] uppercase tracking-widest px-2.5 py-1 rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-white/85">
+                      {eventTypeLabels[event.type]}
+                    </span>
+                    <span className="text-xs text-white/70">
+                      {event.date}
+                      {event.location ? ` · ${event.location}` : ''}
+                    </span>
+                  </div>
+                </figure>
+              ))}
           </div>
         </div>
       </div>

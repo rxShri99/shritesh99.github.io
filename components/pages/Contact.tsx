@@ -38,10 +38,20 @@ export default function Contact() {
   // Write the handle once the rings settle into their final position; keep
   // it drawn through small scrolls, and only reset after fully exiting the
   // section so the next arrival writes it again.
-  const { scrollProgress, currentPage } = useScroll();
-  const ringsAtFinal = scrollProgress >= RINGS_FINAL_PROGRESS;
+  const { currentPage, subscribe } = useScroll();
+  // Boolean derived from a continuous value: track it via the scroll
+  // subscription and setState only on threshold crossings, so scrolling
+  // near the boundary doesn't churn re-renders.
+  const [ringsAtFinal, setRingsAtFinal] = useState(false);
   const fullyExited = currentPage < EXIT_PAGE;
   const [play, setPlay] = useState(false);
+
+  useEffect(() => {
+    return subscribe((snap) => {
+      const next = snap.scrollProgress >= RINGS_FINAL_PROGRESS;
+      setRingsAtFinal((prev) => (prev === next ? prev : next));
+    });
+  }, [subscribe]);
 
   useEffect(() => {
     if (!ringsAtFinal) return;

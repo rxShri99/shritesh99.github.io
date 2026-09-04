@@ -1,6 +1,13 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { PAGE_HEIGHTS_VH } from '@/constants';
 
 const NUM_PAGES = PAGE_HEIGHTS_VH.length;
@@ -35,35 +42,68 @@ function computeRingProgress(pageIndex: number, pageProgress: number): number {
   return Math.min(1, (pageIndex + tail) / denom);
 }
 
-interface ScrollContextType {
-  scrollProgress: number; // 0-1, locked during page 4 so ring/camera hold
-  currentPage: number;
-  pageProgress: number; // 0-1 fraction within the current page (respects non-uniform heights)
+/** Continuous scroll values, updated every scroll tick without re-rendering. */
+export interface ScrollSnapshot {
+  scrollProgress: number;
+  pageProgress: number;
   scrollY: number;
   cameraY: number;
+  currentPage: number;
 }
 
-const ScrollContext = createContext<ScrollContextType>({
+/** Listener signature for per-tick scroll updates. */
+type ScrollListener = (snap: ScrollSnapshot) => void;
+
+interface ScrollContextValue {
+  /** Integer page index. Re-renders subscribers only when it flips — not
+   *  60 times/second like the raw scroll position would. */
+  currentPage: number;
+  /** Read continuous scroll values inside a useFrame / rAF without triggering
+   *  a re-render. Values are mutated in place on every scroll tick. */
+  scrollRef: React.MutableRefObject<ScrollSnapshot>;
+  /** Subscribe to per-tick scroll updates. Return the unsubscribe fn. Prefer
+   *  this over reading `scrollRef.current` in JSX — reading a ref does not
+   *  make React re-render when it changes. */
+  subscribe: (listener: ScrollListener) => () => void;
+}
+
+const initialSnapshot: ScrollSnapshot = {
   scrollProgress: 0,
-  currentPage: 0,
   pageProgress: 0,
   scrollY: 0,
   cameraY: 200,
-});
+  currentPage: 0,
+};
 
-export function useScroll() {
-  return useContext(ScrollContext);
+const ScrollContext = createContext<ScrollContextValue | null>(null);
+
+export function useScroll(): ScrollContextValue {
+  const ctx = useContext(ScrollContext);
+  if (!ctx) throw new Error('useScroll must be used within ScrollProvider');
+  return ctx;
 }
 
 export function ScrollProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<ScrollContextType>({
-    scrollProgress: 0,
-    currentPage: 0,
-    pageProgress: 0,
-    scrollY: 0,
-    cameraY: 200,
-  });
-  const previousPageRef = useRef(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const scrollRef = useRef<ScrollSnapshot>({ ...initialSnapshot });
+  const listenersRef = useRef<Set<ScrollListener>>(new Set());
+  // Track the last emitted page in a ref so the scroll effect can stay
+  // mounted for the lifetime of the provider — a state dep here would tear
+  // the listener down and re-add it on every page flip.
+  const lastEmittedPageRef = useRef(0);
+
+  const subscribe = useMemo(
+    () => (listener: ScrollListener) => {
+      listenersRef.current.add(listener);
+      // Prime the new subscriber with the current snapshot so it can render
+      // correctly on first paint even mid-scroll.
+      listener(scrollRef.current);
+      return () => {
+        listenersRef.current.delete(listener);
+      };
+    },
+    []
+  );
 
   useEffect(() => {
     const handleScroll = () => {
@@ -89,20 +129,26 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
       const scrollProgress = computeRingProgress(pageIndex, pageProgress);
       const cameraY = 200 - scrollProgress * 400;
 
-      if (pageIndex !== previousPageRef.current) {
-        console.log(
-          `📤 EXIT Page ${previousPageRef.current + 1} → 📥 ENTER Page ${pageIndex + 1}`
-        );
-        previousPageRef.current = pageIndex;
-      }
+      // In-place mutation: subscribers read scrollRef.current inside their
+      // own rAF/useFrame, so allocating a new object each tick would waste GC.
+      const snap = scrollRef.current;
+      snap.scrollProgress = scrollProgress;
+      snap.pageProgress = pageProgress;
+      snap.scrollY = scrollTop;
+      snap.cameraY = cameraY;
+      snap.currentPage = pageIndex;
 
-      setState({
-        scrollProgress,
-        currentPage: pageIndex,
-        pageProgress,
-        scrollY: scrollTop,
-        cameraY,
-      });
+      // Notify per-tick subscribers first (they typically write DOM styles or
+      // read into useFrame refs — no React work).
+      listenersRef.current.forEach((fn) => fn(snap));
+
+      // Then commit page index to React state, ONLY on integer flip. This
+      // is what used to fire ~60 times per second and cascade re-renders
+      // through Scene, Skills, Community, Contact.
+      if (pageIndex !== lastEmittedPageRef.current) {
+        lastEmittedPageRef.current = pageIndex;
+        setCurrentPage(pageIndex);
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -110,7 +156,12 @@ export function ScrollProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const value = useMemo<ScrollContextValue>(
+    () => ({ currentPage, scrollRef, subscribe }),
+    [currentPage, subscribe]
+  );
+
   return (
-    <ScrollContext.Provider value={state}>{children}</ScrollContext.Provider>
+    <ScrollContext.Provider value={value}>{children}</ScrollContext.Provider>
   );
 }

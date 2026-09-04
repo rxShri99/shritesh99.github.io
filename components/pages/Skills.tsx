@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
-import { useControls } from 'leva';
 import { skills, skillCategories, type Skill } from '@/data/portfolio';
 import { usePrefersReducedMotion } from '@/hooks';
+import { useDevMode } from '@/hooks/useDevMode';
 import { useScroll } from '@/context/ScrollContext';
 import { PAGE_HEIGHTS_VH } from '@/constants';
 import type { IconType } from 'react-icons';
@@ -345,6 +345,11 @@ interface SphereDrag {
 const ROLES = (Object.keys(skillCategories) as Skill['category'][]).map(
   (c) => `${skillCategories[c]} Engineer`
 );
+// Widest role: reserved as a hidden sizer so "I am a" stays put across swaps.
+const LONGEST_ROLE = ROLES.reduce(
+  (a, b) => (b.length > a.length ? b : a),
+  ROLES[0] ?? ''
+);
 const SWAP_EVERY_MS = 2400;
 const LETTER_MS = 500;
 const STAGGER_MS = 32;
@@ -405,15 +410,23 @@ function ExchangeTitle({ activeCount }: { activeCount: number }) {
   const { current, leaving } = state;
   return (
     <div
-      className="flex items-baseline justify-center gap-[0.4em] text-3xl md:text-5xl font-bold tracking-tight drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)]"
+      className="flex items-baseline justify-center gap-[0.4em] tracking-tight drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] font-bold text-[2rem] sm:text-[2.5rem] md:text-[3rem] lg:text-[3.5rem]"
       aria-label={`I am a ${ROLES.slice(0, activeCount).join(', ')}`}
     >
       <span className="text-white/60 andromeda-regular">I am a</span>
       <span
         aria-hidden
-        className="relative inline-flex overflow-hidden py-[0.1em]"
+        className="relative inline-block overflow-hidden py-[0.1em]"
       >
-        <span key={`in-${current}`} className="inline-flex whitespace-pre">
+        {/* Invisible sizer: reserves width of the widest role so the outer
+            flex has a stable centre — "I am a" doesn't shift as roles swap. */}
+        <span className="invisible whitespace-pre andromeda-regular">
+          {LONGEST_ROLE}
+        </span>
+        <span
+          key={`in-${current}`}
+          className="absolute inset-y-0 left-0 inline-flex items-baseline whitespace-pre andromeda-regular py-[0.1em]"
+        >
           {/* No roll-in on the very first render */}
           {leaving === -1 ? (
             ROLES[current]
@@ -424,7 +437,7 @@ function ExchangeTitle({ activeCount }: { activeCount: number }) {
         {leaving >= 0 && leaving !== current && (
           <span
             key={`out-${leaving}-${current}`}
-            className="absolute left-0 top-0 inline-flex whitespace-pre py-[0.1em]"
+            className="absolute inset-y-0 left-0 inline-flex items-baseline whitespace-pre py-[0.1em]"
           >
             <TitleLetters word={ROLES[leaving]} out />
           </span>
@@ -659,18 +672,72 @@ function IconSphere({
 }
 
 export default function Skills() {
-  const { currentPage, pageProgress } = useScroll();
+  const { subscribe } = useScroll();
   const sectionRef = useRef<HTMLElement>(null);
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // Discrete: flips 4 times across the whole section as new spheres unlock.
+  // Keeping it as state (vs a ref-driven imperative write) is fine — the
+  // ExchangeTitle only needs to re-render on those flips, not every tick.
+  const [activeCount, setActiveCount] = useState(1);
   // Shared drag offsets, read by every sphere each frame — a gesture spins
   // the whole visible stack, not just the top layer.
   const dragRef = useRef<SphereDrag>({ angle: 0, tilt: 0, baseScale: 1 });
   const reduceMotion = usePrefersReducedMotion();
+  const isDevMode = useDevMode();
+
+  // Per-category item lists, hoisted so their reference is stable across
+  // renders — otherwise `items={skills.filter(...)}` in JSX would hand each
+  // IconSphere a fresh array every parent render and invalidate its memos.
+  const itemsByCategory = useMemo(() => {
+    const map = {} as Record<Skill['category'], Skill[]>;
+    for (const cat of ROW_ORDER) {
+      map[cat] = skills
+        .filter((s) => s.category === cat)
+        .slice(0, CORE_PER_CATEGORY);
+    }
+    return map;
+  }, []);
+
+  // Per-tick scroll → row transforms (imperative) + activeCount (state, but
+  // only when the integer flips). This is the whole reason Skills stopped
+  // re-rendering 60x/second.
+  useEffect(() => {
+    return subscribe((snap) => {
+      const scrollVh =
+        (snap.currentPage < PAGE_INDEX
+          ? 0
+          : snap.currentPage > PAGE_INDEX
+            ? 1
+            : snap.pageProgress) * SECTION_VH;
+
+      const nextActiveCount = Math.min(
+        ROW_ORDER.length,
+        Math.floor(scrollVh / SLOT_VH + 0.5) + 1
+      );
+      setActiveCount((prev) =>
+        prev === nextActiveCount ? prev : nextActiveCount
+      );
+
+      for (let i = 0; i < ROW_ORDER.length; i++) {
+        const el = rowRefs.current[i];
+        if (!el) continue;
+        const covered =
+          i < ROW_ORDER.length - 1
+            ? Math.max(0, Math.min(1, scrollVh / SLOT_VH - i))
+            : 0;
+        el.style.transform = `scale(${1 - 0.12 * covered})`;
+        el.style.opacity = String(1 - 0.3 * covered);
+      }
+    });
+  }, [subscribe]);
 
   // Sphere radius as a multiplier on the box fit — >1 spills the icons past
   // the box so the field drifts among the rings like an asteroid belt.
-  const { radius } = useControls('Skills Sphere', {
-    radius: { value: 1.35, min: 0.5, max: 1.8, step: 0.01 },
-  });
+  const radius = 1.35;
+
+  // "I am a <role>" title — vertical offset in vh; font size scales with the
+  // viewport in ExchangeTitle so the same title reads on phone through desktop.
+  const TITLE_OFFSET_Y_VH = -5;
 
   // Section-level drag: pointer gestures anywhere on the section rotate the
   // shared offsets, with momentum that eases out after release.
@@ -746,7 +813,8 @@ export default function Skills() {
         // Cursor steering: velocity ∝ offset from the sphere centre (the
         // viewport centre — the spheres are flex-centred in the pinned
         // viewport), opposite the cursor's direction, zero at dead centre.
-        const steering = finePointer && hover.inside;
+        // Dev mode kills it so hover doesn't move the spheres while tuning.
+        const steering = finePointer && hover.inside && !isDevMode;
         const nx = steering
           ? (hover.x - window.innerWidth / 2) / (window.innerWidth / 2)
           : 0;
@@ -784,21 +852,7 @@ export default function Skills() {
       el.removeEventListener('pointerenter', enter);
       el.removeEventListener('pointerleave', leave);
     };
-  }, [reduceMotion]);
-
-  // Scroll depth into this section, in vh units.
-  const scrollVh =
-    (currentPage < PAGE_INDEX
-      ? 0
-      : currentPage > PAGE_INDEX
-        ? 1
-        : pageProgress) * SECTION_VH;
-
-  // Roles unlocked so far: layer i counts once its sphere is half slid in.
-  const activeCount = Math.min(
-    ROW_ORDER.length,
-    Math.floor(scrollVh / SLOT_VH + 0.5) + 1
-  );
+  }, [reduceMotion, isDevMode]);
 
   return (
     <section
@@ -808,54 +862,47 @@ export default function Skills() {
       style={{ height: `${SECTION_VH}vh`, touchAction: 'pan-y' }}
       aria-label="Skills"
     >
-      {ROW_ORDER.map((category, i) => {
-        // How far the NEXT card has slid up over this one (0 → 1).
-        const covered =
-          i < ROW_ORDER.length - 1
-            ? Math.max(0, Math.min(1, scrollVh / SLOT_VH - i))
-            : 0;
-        return (
-          <div
-            key={category}
-            className="sticky top-0 h-screen flex items-center justify-center px-6"
-          >
-            {/* Centre title rides the first wrapper (outside the scaled div,
-                so it never dims) and stays pinned across the whole stack. */}
-            {i === 0 && (
-              <div className="absolute inset-0 flex items-center justify-center px-6 pointer-events-none z-10">
-                <ExchangeTitle activeCount={activeCount} />
-              </div>
-            )}
-
-            {/* Transparent "card" — no glass, no title. Covered spheres ease
-                back but stay visible behind the incoming one, so the stack
-                reads as skills compounding. */}
+      {ROW_ORDER.map((category, i) => (
+        <div
+          key={category}
+          className="sticky top-0 h-screen flex items-center justify-center px-6"
+        >
+          {/* Centre title rides the first wrapper (outside the scaled div,
+              so it never dims) and stays pinned across the whole stack. */}
+          {i === 0 && (
             <div
-              className="will-change-transform"
-              style={{
-                transform: `scale(${1 - 0.12 * covered})`,
-                opacity: 1 - 0.3 * covered,
-                transition: 'transform 0.15s linear, opacity 0.15s linear',
-              }}
+              className="absolute inset-0 flex items-center justify-center px-6 pointer-events-none z-10"
+              style={{ transform: `translateY(${TITLE_OFFSET_Y_VH}vh)` }}
             >
-              <div
-                className="relative h-[66vh] md:h-[70vh] max-h-[90vw] aspect-square"
-                aria-label={skillCategories[category]}
-              >
-                <IconSphere
-                  items={skills
-                    .filter((s) => s.category === category)
-                    .slice(0, CORE_PER_CATEGORY)}
-                  speed={0.22 + i * 0.03}
-                  reverse={i % 2 === 1}
-                  radiusScale={radius}
-                  drag={dragRef}
-                />
-              </div>
+              <ExchangeTitle activeCount={activeCount} />
+            </div>
+          )}
+
+          {/* Transparent "card" — no glass, no title. Covered spheres ease
+              back but stay visible behind the incoming one, so the stack
+              reads as skills compounding. Transform & opacity are written
+              imperatively per rAF by the scroll subscription above. */}
+          <div
+            ref={(el) => {
+              rowRefs.current[i] = el;
+            }}
+            className="will-change-transform"
+          >
+            <div
+              className="relative h-[66vh] md:h-[70vh] max-h-[90vw] aspect-square"
+              aria-label={skillCategories[category]}
+            >
+              <IconSphere
+                items={itemsByCategory[category]}
+                speed={0.22 + i * 0.03}
+                reverse={i % 2 === 1}
+                radiusScale={radius}
+                drag={dragRef}
+              />
             </div>
           </div>
-        );
-      })}
+        </div>
+      ))}
       {/* Settle room: the finished stack rests here before the sticky release */}
       <div style={{ height: `${SECTION_VH - ROW_ORDER.length * SLOT_VH}vh` }} />
     </section>

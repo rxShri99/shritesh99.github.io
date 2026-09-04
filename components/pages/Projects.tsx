@@ -3,14 +3,18 @@
 import { type CSSProperties, type MouseEvent } from 'react';
 import { projects } from '@/data/portfolio';
 import Parallax from '@/components/Parallax';
+import { useDevMode } from '@/hooks/useDevMode';
 
 // Seconds for one full loop (one half of the track).
 const MARQUEE_DURATION = 45;
 
 export default function Projects() {
+  const isDevMode = useDevMode();
+
   // Feed the cursor position (card-local px) to CSS vars for the glow spot /
   // lit border, and tilt the card toward the cursor (mouse parallax). Written
-  // straight to the DOM — no re-renders.
+  // straight to the DOM — no re-renders. Dev mode drops the tilt (keeps the
+  // glow) so cards don't lurch under the pointer while tuning.
   const handleCardMove = (e: MouseEvent<HTMLElement>) => {
     const el = e.currentTarget;
     const r = el.getBoundingClientRect();
@@ -18,6 +22,10 @@ export default function Projects() {
     const y = e.clientY - r.top;
     el.style.setProperty('--glow-x', `${x}px`);
     el.style.setProperty('--glow-y', `${y}px`);
+    if (isDevMode) {
+      el.style.transform = '';
+      return;
+    }
     const nx = (x / r.width) * 2 - 1; // -1 .. 1 across the card
     const ny = (y / r.height) * 2 - 1;
     el.style.transform = `perspective(1100px) rotateX(${(-ny * 4).toFixed(2)}deg) rotateY(${(nx * 5).toFixed(2)}deg)`;
