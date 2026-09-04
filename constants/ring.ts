@@ -74,11 +74,11 @@ export function fitByAR(ar: number, values: ARFit): number {
  */
 export const PAGE_DEPTHS: ReadonlyArray<ARFit | ((ar: number) => number)> = [
   [-62, -68, -77, -88], // Hero
-  [-68, -62, -77, -86], // Experience
+  [-62, -68, -77, -86], // Experience
   [-62, -68, -77, -88], // Projects
   (ar) => Math.max(-85, -62 - 33 * ar), // Skills
   [-62, -68, -77, -88], // Community
-  [-68, -62, -77, -86], // About
+  [-62, -68, -77, -86], // About
   [-62, -68, -77, -88], // Quote
   (ar) => -53 - 19 * ar, // Contact
 ];
@@ -94,7 +94,7 @@ export const PAGE_LIFTS: ReadonlyArray<ARFit | ((ar: number) => number)> = [
   [15.29, 14.29, 11.29, 6.29], // Projects
   (ar) => Math.max(9, 18 - 13 * ar), // Skills
   [14.57, 8.57, 10.57, 6.57], // Community
-  [12, 20, 9, 6.5], // About
+  [15.14, 15.14, 10.14, 7.14], // About
   [11.86, 6.86, 5.86, 2.86], // Quote
   (ar) => 17 - 7 * ar, // Contact
 ];
@@ -114,8 +114,8 @@ export const PAGE_X_OFFSETS_S = [0, 0, 0.5, 0, 0, 0, 0, 0];
 export const PAGE_X_OFFSETS_L = [0, 0, 1.5, 0.8, 0, 0, 0, 0];
 
 /** Per-page vertical offsets from mid ring for S and L rings (0 = same height) */
-export const PAGE_OFFSETS_S = [-2.5, -5, -1, 0, 0, -5, 8.3, 2];
-export const PAGE_OFFSETS_L = [2.5, 8.6, 0.1, 0.8, 0, 8.6, 2, 4.0];
+export const PAGE_OFFSETS_S = [-2.5, -5, -1, 0, 0, -0.2, 8.3, 2];
+export const PAGE_OFFSETS_L = [2.5, 8.6, 0.1, 0.8, 0, 0, 2, 4.0];
 
 /** Per-page rotation angles [x, y, z] in radians for each ring */
 export const PAGE_ROTATIONS_S: [number, number, number][] = [
@@ -124,7 +124,7 @@ export const PAGE_ROTATIONS_S: [number, number, number][] = [
   [0, -0.4, 0], // Projects
   [-0.4, -0.8, 0], // Skills
   [-1.2, 0, 0], // Community
-  [0.42, 0.4, 0], // About
+  [-1, 0, 0], // About
   [0.1, 0, 0], // Quote
   [0, 0, 0], // Contact
 ];
@@ -134,7 +134,7 @@ export const PAGE_ROTATIONS_M: [number, number, number][] = [
   [1.1, 0, 0], // Projects
   [1.9, 0, 0], // Skills
   [-1.2, 0, 0], // Community
-  [0.48, -0.4, 0], // About
+  [0.2, 0, 0], // About
   [-0.1, 0, 0], // Quote
   [0, 0, 0], // Contact
 ];
@@ -144,7 +144,7 @@ export const PAGE_ROTATIONS_L: [number, number, number][] = [
   [-0.6, -1, 0], // Projects
   [0.6, 0.6, 0], // Skills
   [-1.2, 0, 0], // Community
-  [0.8, 0.4, 0], // About
+  [-1.2, 0, 0], // About
   [-0.1, 0, 0], // Quote
   [0, 0, 0], // Contact
 ];

@@ -115,6 +115,8 @@ export default function Contact() {
           <p className="text-white/20 text-sm">
             &copy; {new Date().getFullYear()} Shritesh Jamulkar. All rights
             reserved.
+            <br/>
+            Made with ❤️ by Shri from London, UK 🇬🇧
           </p>
         </Parallax>
       </div>
